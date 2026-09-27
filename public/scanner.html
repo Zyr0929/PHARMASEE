@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaSEE — Mobile Scanner</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- html5-qrcode (CDN) -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <!-- Socket.io client (served by the Express server) -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    body { background: #0f172a; }
+    #reader { width: 100%; max-width: 400px; margin: 0 auto; }
+    #reader video { border-radius: 12px; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4 text-white font-sans">
+
+  <!-- Header -->
+  <div class="text-center mb-6">
+    <h1 class="text-3xl font-bold text-emerald-400 tracking-wide">PharmaSEE</h1>
+    <p class="text-slate-400 text-sm mt-1">Mobile Barcode Scanner</p>
+  </div>
+
+  <!-- Scanner viewport -->
+  <div id="reader" class="rounded-xl overflow-hidden shadow-lg border border-slate-700"></div>
+
+  <!-- Status messages -->
+  <div id="status" class="mt-6 text-center">
+    <p class="text-slate-400 text-sm">Point your camera at a barcode…</p>
+  </div>
+
+  <!-- Last scanned feedback -->
+  <div id="lastScanned" class="hidden mt-4 bg-emerald-900/50 border border-emerald-500/30 rounded-lg px-6 py-3 text-center">
+    <p class="text-xs text-emerald-300 uppercase tracking-wider">Last Scanned</p>
+    <p id="lastCode" class="text-lg font-mono font-bold text-emerald-400 mt-1"></p>
+  </div>
+
+  <!-- Connection indicator -->
+  <div id="connection" class="fixed bottom-4 left-4 flex items-center gap-2 bg-slate-800/80 rounded-full px-3 py-1.5 text-xs">
+    <span id="connDot" class="w-2 h-2 rounded-full bg-red-500"></span>
+    <span id="connText" class="text-slate-400">Disconnected</span>
+  </div>
+
+  <script>
+    // ---- Socket.io connection ----
+    const socket = io();
+    const connDot  = document.getElementById('connDot');
+    const connText = document.getElementById('connText');
+
+    socket.on('connect', () => {
+      connDot.className  = 'w-2 h-2 rounded-full bg-emerald-500';
+      connText.textContent = 'Connected';
+      connText.className   = 'text-emerald-400';
+    });
+
+    socket.on('disconnect', () => {
+      connDot.className  = 'w-2 h-2 rounded-full bg-red-500';
+      connText.textContent = 'Disconnected';
+      connText.className   = 'text-red-400';
+    });
+
+    // ---- Barcode scanner (html5-qrcode) ----
+    const html5QrCode = new Html5Qrcode('reader');
+
+    // Debounce: prevent rapid duplicate scans
+    let lastBarcode = '';
+    let lastTime    = 0;
+
+    function onScanSuccess(decodedText) {
+      const now = Date.now();
+      if (decodedText === lastBarcode && now - lastTime < 2000) return; // 2-second cooldown
+
+      lastBarcode = decodedText;
+      lastTime    = now;
+
+      // Send to server via Socket.io
+      socket.emit('barcode-scanned', decodedText);
+
+      // UI feedback
+      document.getElementById('lastScanned').classList.remove('hidden');
+      document.getElementById('lastCode').textContent = decodedText;
+
+      // Brief vibration feedback (if supported)
+      if (navigator.vibrate) navigator.vibrate(100);
+    }
+
+    html5QrCode.start(
+      { facingMode: 'environment' },
+      {
+        fps: 10,
+        qrbox: { width: 280, height: 150 },
+        aspectRatio: 1.5,
+      },
+      onScanSuccess
+    ).catch(err => {
+      document.getElementById('status').innerHTML =
+        `<p class="text-red-400 text-sm">Camera error: ${err}</p>`;
+    });
+  </script>
+</body>
+</html>
