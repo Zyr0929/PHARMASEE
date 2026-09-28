@@ -6,11 +6,9 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path   = require('path');
 const os     = require('os');
-const http   = require('http');
 
 // Express + Socket.io
 const express  = require('express');
-const { Server: SocketServer } = require('socket.io');
 
 // Database layer
 const {
@@ -314,18 +312,85 @@ ipcMain.handle('util:localIP', () => {
 // 9. Express + Socket.io  — Mobile Barcode Scanner Server (port 3000)
 // ---------------------------------------------------------------------------
 function startScannerServer() {
-  const expressApp = express();
-  const httpServer = http.createServer(expressApp);
-  const io         = new SocketServer(httpServer, { cors: { origin: '*' } });
+  const https = require('https');
+  const http  = require('http');
+  const forge = require('node-forge');
 
-  // Serve the mobile scanner page
+  const localIP = getLocalIPv4();
+  let server;
+
+  try {
+    // Generate RSA key pair with node-forge
+    const keys = forge.pki.rsa.generateKeyPair(2048);
+
+    // Create a self-signed certificate
+    const cert = forge.pki.createCertificate();
+    cert.publicKey = keys.publicKey;
+    cert.serialNumber = '01';
+    cert.validity.notBefore = new Date();
+    cert.validity.notAfter  = new Date();
+    cert.validity.notAfter.setFullYear(cert.validity.notAfter.getFullYear() + 1);
+
+    const attrs = [{ name: 'commonName', value: 'PharmaSEE Scanner' }];
+    cert.setSubject(attrs);
+    cert.setIssuer(attrs);
+
+    // Add Subject Alternative Names so browser accepts for local IP
+    cert.setExtensions([
+      { name: 'basicConstraints', cA: true },
+      { name: 'subjectAltName', altNames: [
+        { type: 2, value: 'localhost' },
+        { type: 7, ip: '127.0.0.1' },
+        { type: 7, ip: localIP },
+      ]},
+    ]);
+
+    // Sign the certificate with the private key
+    cert.sign(keys.privateKey, forge.md.sha256.create());
+
+    // Convert to PEM
+    const pemKey  = forge.pki.privateKeyToPem(keys.privateKey);
+    const pemCert = forge.pki.certificateToPem(cert);
+
+    const expressApp = express();
+    server = https.createServer({ key: pemKey, cert: pemCert }, expressApp);
+
+    setupExpressRoutes(expressApp);
+    setupSocketIO(server);
+
+    const PORT = 3000;
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`[Scanner] HTTPS server running → https://${localIP}:${PORT}/scanner`);
+    });
+
+  } catch (err) {
+    // Fallback to HTTP if HTTPS cert generation fails
+    console.error('[Scanner] HTTPS setup failed, falling back to HTTP:', err.message);
+
+    const expressApp = express();
+    server = http.createServer(expressApp);
+
+    setupExpressRoutes(expressApp);
+    setupSocketIO(server);
+
+    const PORT = 3000;
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`[Scanner] HTTP fallback server → http://${localIP}:${PORT}/scanner`);
+    });
+  }
+}
+
+function setupExpressRoutes(expressApp) {
   expressApp.use(express.static(path.join(__dirname, 'public')));
-
   expressApp.get('/scanner', (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'scanner.html'));
   });
+}
 
-  // Socket.io — relay barcode to Electron renderer
+function setupSocketIO(server) {
+  const { Server: SIO } = require('socket.io');
+  const io = new SIO(server, { cors: { origin: '*' } });
+
   io.on('connection', (socket) => {
     console.log('[Scanner] Mobile client connected:', socket.id);
 
@@ -339,11 +404,6 @@ function startScannerServer() {
     socket.on('disconnect', () => {
       console.log('[Scanner] Mobile client disconnected:', socket.id);
     });
-  });
-
-  const PORT = 3000;
-  httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Scanner] Express server running → http://${getLocalIPv4()}:${PORT}/scanner`);
   });
 }
 

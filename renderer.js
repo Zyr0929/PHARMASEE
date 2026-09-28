@@ -182,7 +182,7 @@ window.navigateTo = navigateTo;
 async function loadScannerIP() {
   try {
     const ip = await window.api.getLocalIP();
-    $scannerURL.textContent = `${ip}:3000/scanner`;
+    $scannerURL.textContent = `https://${ip}:3000/scanner`;
   } catch {
     $scannerURL.textContent = 'unavailable';
   }
