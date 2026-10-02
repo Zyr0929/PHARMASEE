@@ -1,14 +1,10 @@
-// ============================================================================
 // PharmaSEE — audits.js
 // Stock Audits: Physical count entry, discrepancy rate, audit history
-// ============================================================================
 
 (() => {
   'use strict';
 
-  // -------------------------------------------------------------------------
-  // DOM References
-  // -------------------------------------------------------------------------
+  //Dom Ref
   const $btnNewAudit      = document.getElementById('btnNewAudit');
   const $auditTableBody   = document.getElementById('auditTableBody');
   const $auditStatTotal   = document.getElementById('auditStatTotal');
@@ -28,15 +24,12 @@
   const $af_variance      = document.getElementById('af_variance');
   const $af_discRate      = document.getElementById('af_discRate');
 
-  // -------------------------------------------------------------------------
   // State
-  // -------------------------------------------------------------------------
   let allProducts = [];
   let allAudits   = [];
 
-  // -------------------------------------------------------------------------
+
   // Load Data
-  // -------------------------------------------------------------------------
   async function loadAudits() {
     try {
       allAudits   = await window.api.getAudits();
@@ -50,9 +43,7 @@
     updateStats();
   }
 
-  // -------------------------------------------------------------------------
   // Stats
-  // -------------------------------------------------------------------------
   function updateStats() {
     const total = allAudits.length;
     $auditStatTotal.textContent = total;
@@ -70,9 +61,7 @@
     }
   }
 
-  // -------------------------------------------------------------------------
   // Table Rendering
-  // -------------------------------------------------------------------------
   function renderTable() {
     if (allAudits.length === 0) {
       $auditTableBody.innerHTML = '<div class="text-center py-12 text-slate-500 text-sm">No audits recorded yet</div>';
@@ -113,9 +102,7 @@
     }).join('');
   }
 
-  // -------------------------------------------------------------------------
   // New Audit Modal
-  // -------------------------------------------------------------------------
   $btnNewAudit.addEventListener('click', openAuditModal);
   $auditModalClose.addEventListener('click', closeAuditModal);
   $auditModalCancel.addEventListener('click', closeAuditModal);
@@ -148,7 +135,7 @@
     $auditModal.classList.add('hidden');
   }
 
-  // ---- Product selection → auto-fill system count ----
+  // Product selection to auto-fill system count
   $af_product.addEventListener('change', () => {
     const productId = parseInt($af_product.value, 10);
     const product   = allProducts.find(p => p.id === productId);
@@ -156,7 +143,7 @@
     updatePreview();
   });
 
-  // ---- Physical count change → update preview ----
+  // Physical count change to update preview
   $af_physical.addEventListener('input', updatePreview);
 
   function updatePreview() {
@@ -182,7 +169,7 @@
     $auditPreview.classList.remove('hidden');
   }
 
-  // ---- Form Submit ----
+  // Form Submit
   $auditForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     $auditFormError.classList.add('hidden');
@@ -221,9 +208,7 @@
     }
   });
 
-  // -------------------------------------------------------------------------
   // Auto-refresh on view switch
-  // -------------------------------------------------------------------------
   const observer = new MutationObserver(() => {
     const view = document.getElementById('view-audits');
     if (view && view.classList.contains('active')) {
