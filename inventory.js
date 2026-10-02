@@ -1,21 +1,15 @@
-// ============================================================================
 // PharmaSEE — inventory.js
 // Inventory Dashboard: CRUD, Search/Filter, ABC, Safety Stock/ROP, Alerts
-// ============================================================================
 
 (() => {
   'use strict';
 
-  // -------------------------------------------------------------------------
   // State
-  // -------------------------------------------------------------------------
   let allProducts     = [];
   let filteredProducts = [];
   let deleteTargetId  = null;
 
-  // -------------------------------------------------------------------------
   // DOM References
-  // -------------------------------------------------------------------------
   const $invSearch       = document.getElementById('invSearch');
   const $invFilterABC    = document.getElementById('invFilterABC');
   const $invFilterStock  = document.getElementById('invFilterStock');
@@ -53,9 +47,7 @@
   const $deleteModalCancel  = document.getElementById('deleteModalCancel');
   const $deleteModalConfirm = document.getElementById('deleteModalConfirm');
 
-  // -------------------------------------------------------------------------
   // Currency formatter
-  // -------------------------------------------------------------------------
   const peso = (n) => '₱' + Number(n).toFixed(2);
   const pesoShort = (n) => {
     if (n >= 1000000) return '₱' + (n / 1000000).toFixed(1) + 'M';
@@ -63,9 +55,7 @@
     return '₱' + Number(n).toFixed(2);
   };
 
-  // -------------------------------------------------------------------------
   // Data Loading
-  // -------------------------------------------------------------------------
   async function loadProducts() {
     try {
       allProducts = await window.api.getProducts();
@@ -77,9 +67,7 @@
     updateStats();
   }
 
-  // -------------------------------------------------------------------------
   // Filtering & Search
-  // -------------------------------------------------------------------------
   function applyFilters() {
     const query     = ($invSearch.value || '').toLowerCase().trim();
     const abcFilter = $invFilterABC.value;
@@ -113,9 +101,7 @@
   $invFilterABC.addEventListener('change', applyFilters);
   $invFilterStock.addEventListener('change', applyFilters);
 
-  // -------------------------------------------------------------------------
   // Stats Update
-  // -------------------------------------------------------------------------
   function updateStats() {
     const total = allProducts.length;
     const stockValue = allProducts.reduce((sum, p) => sum + (p.unit_cost * p.stock_quantity), 0);
@@ -128,9 +114,7 @@
     $statOutOfStock.textContent    = outOfStock;
   }
 
-  // -------------------------------------------------------------------------
   // Table Rendering
-  // -------------------------------------------------------------------------
   function renderTable() {
     if (filteredProducts.length === 0) {
       $invTableBody.innerHTML = `
@@ -206,9 +190,7 @@
     $invRowCount.textContent = `Showing ${filteredProducts.length} of ${allProducts.length} products`;
   }
 
-  // -------------------------------------------------------------------------
   // ABC Badge Helper
-  // -------------------------------------------------------------------------
   function abcBadge(tier) {
     if (tier === 'A') return '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-900/50 text-emerald-400 ring-1 ring-emerald-500/30">A</span>';
     if (tier === 'B') return '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-900/50 text-amber-400 ring-1 ring-amber-500/30">B</span>';
@@ -216,9 +198,7 @@
     return '<span class="text-slate-600 text-[10px]">—</span>';
   }
 
-  // -------------------------------------------------------------------------
   // Add / Edit Product Modal
-  // -------------------------------------------------------------------------
   $btnAddProduct.addEventListener('click', () => openProductModal());
   $productModalClose.addEventListener('click', closeProductModal);
   $productModalCancel.addEventListener('click', closeProductModal);
@@ -306,17 +286,13 @@
     $productFormError.classList.remove('hidden');
   }
 
-  // -------------------------------------------------------------------------
   // Edit Product (load data into modal)
-  // -------------------------------------------------------------------------
   function editProduct(id) {
     const product = allProducts.find(p => p.id === id);
     if (product) openProductModal(product);
   }
 
-  // -------------------------------------------------------------------------
   // Delete Product
-  // -------------------------------------------------------------------------
   function confirmDelete(id, name) {
     deleteTargetId = id;
     $deleteModalText.textContent = `Are you sure you want to delete "${name}"? This action cannot be undone.`;
@@ -349,9 +325,7 @@
     }
   });
 
-  // -------------------------------------------------------------------------
   // Algorithm Buttons
-  // -------------------------------------------------------------------------
   $btnRunABC.addEventListener('click', async () => {
     $btnRunABC.disabled = true;
     $btnRunABC.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px"></span> Running…';
@@ -408,9 +382,7 @@
     }
   });
 
-  // -------------------------------------------------------------------------
   // Auto-refresh when Inventory view becomes active
-  // -------------------------------------------------------------------------
   const observer = new MutationObserver(() => {
     const invView = document.getElementById('view-inventory');
     if (invView && invView.classList.contains('active')) {
@@ -424,9 +396,7 @@
     observer.observe(invView, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // -------------------------------------------------------------------------
   // Expose for inline onclick handlers
-  // -------------------------------------------------------------------------
   window._inv = {
     edit:          editProduct,
     confirmDelete: confirmDelete,

@@ -1,14 +1,10 @@
-// ============================================================================
 // PharmaSEE — reports.js
 // Reports & Analytics: Sales reports, Chart.js charts, financial summaries
-// ============================================================================
 
 (() => {
   'use strict';
 
-  // -------------------------------------------------------------------------
   // DOM References
-  // -------------------------------------------------------------------------
   const $dateFrom       = document.getElementById('rptDateFrom');
   const $dateTo         = document.getElementById('rptDateTo');
   const $btnGenerate    = document.getElementById('btnGenerateReport');
@@ -25,9 +21,7 @@
   const $abcCountC    = document.getElementById('abcCountC');
   const $abcCountNone = document.getElementById('abcCountNone');
 
-  // -------------------------------------------------------------------------
   // Currency formatter
-  // -------------------------------------------------------------------------
   const peso = (n) => '₱' + Number(n).toFixed(2);
   const pesoShort = (n) => {
     if (n >= 1000000) return '₱' + (n / 1000000).toFixed(1) + 'M';
@@ -35,15 +29,11 @@
     return '₱' + Number(n).toFixed(2);
   };
 
-  // -------------------------------------------------------------------------
   // Chart instances (need to destroy before re-creating)
-  // -------------------------------------------------------------------------
   let salesChart = null;
   let abcChart   = null;
 
-  // -------------------------------------------------------------------------
   // Default date range (30 days)
-  // -------------------------------------------------------------------------
   function initDates() {
     const now = new Date();
     const past = new Date(now);
@@ -52,9 +42,7 @@
     $dateFrom.value = past.toISOString().slice(0, 10);
   }
 
-  // -------------------------------------------------------------------------
   // Quick Range Presets
-  // -------------------------------------------------------------------------
   function setRange(preset) {
     const now = new Date();
     const from = new Date(now);
@@ -79,9 +67,7 @@
     generateReport();
   }
 
-  // -------------------------------------------------------------------------
   // Generate Report
-  // -------------------------------------------------------------------------
   $btnGenerate.addEventListener('click', generateReport);
 
   async function generateReport() {
@@ -95,7 +81,7 @@
     // Fetch all products for ABC distribution
     const products  = await window.api.getProducts();
 
-    // ---- Financial Summary ----
+    // Financial Summary
     let totalRevenue = 0;
     let totalCOGS    = 0;
 
@@ -123,19 +109,17 @@
 
     $rptProductCount.textContent = `${salesData.length} products sold`;
 
-    // ---- Top Products Bar Chart ----
+    // Top Products Bar Chart
     renderSalesChart(salesData.slice(0, 10));
 
-    // ---- ABC Distribution Doughnut ----
+    // ABC Distribution Doughnut
     renderABCChart(products);
 
-    // ---- Top Products Table ----
+    // Top Products Table
     renderTopTable(salesData);
   }
 
-  // -------------------------------------------------------------------------
   // Sales Bar Chart (Chart.js)
-  // -------------------------------------------------------------------------
   function renderSalesChart(data) {
     const ctx = document.getElementById('chartSales');
     if (!ctx) return;
@@ -200,9 +184,7 @@
     });
   }
 
-  // -------------------------------------------------------------------------
   // ABC Doughnut Chart (Chart.js)
-  // -------------------------------------------------------------------------
   function renderABCChart(products) {
     const ctx = document.getElementById('chartABC');
     if (!ctx) return;
@@ -256,9 +238,7 @@
     });
   }
 
-  // -------------------------------------------------------------------------
   // Top Products Table
-  // -------------------------------------------------------------------------
   function renderTopTable(data) {
     if (data.length === 0) {
       $rptTopTable.innerHTML = '<div class="text-center py-6 text-slate-500 text-sm">No sales data for this period</div>';
@@ -282,9 +262,7 @@
     }).join('');
   }
 
-  // -------------------------------------------------------------------------
   // Auto-load on view switch
-  // -------------------------------------------------------------------------
   const observer = new MutationObserver(() => {
     const view = document.getElementById('view-reports');
     if (view && view.classList.contains('active')) {
@@ -295,9 +273,7 @@
   const rptView = document.getElementById('view-reports');
   if (rptView) observer.observe(rptView, { attributes: true, attributeFilter: ['class'] });
 
-  // -------------------------------------------------------------------------
   // Expose for inline handlers
-  // -------------------------------------------------------------------------
   window._rpt = {
     setRange,
     generate: generateReport,

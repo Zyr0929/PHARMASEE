@@ -1,21 +1,15 @@
-// ============================================================================
 // PharmaSEE — pos.js
 // POS Terminal Logic: Barcode scanning, cart management, checkout flow
-// ============================================================================
 
 (() => {
   'use strict';
 
-  // -------------------------------------------------------------------------
   // State
-  // -------------------------------------------------------------------------
   let cart = [];        // [{ product_id, barcode, brand_name, generic_name, selling_price, quantity, subtotal, stock_available }]
   let heldCarts = [];   // saved carts (Hold feature)
   let toastTimer = null;
 
-  // -------------------------------------------------------------------------
   // DOM References
-  // -------------------------------------------------------------------------
   const $barcodeInput   = document.getElementById('barcodeInput');
   const $cartBody       = document.getElementById('cartBody');
   const $cartRows       = document.getElementById('cartRows');
@@ -39,14 +33,10 @@
   const $modalChange    = document.getElementById('modalChange');
   const $modalCloseBtn  = document.getElementById('modalCloseBtn');
 
-  // -------------------------------------------------------------------------
   // Currency Formatter
-  // -------------------------------------------------------------------------
   const peso = (amount) => '₱' + Number(amount).toFixed(2);
 
-  // -------------------------------------------------------------------------
   // Barcode Input Handler
-  // -------------------------------------------------------------------------
   $barcodeInput.addEventListener('keydown', async (e) => {
     if (e.key !== 'Enter') return;
     e.preventDefault();
@@ -63,9 +53,7 @@
     lookupAndAdd(e.detail);
   });
 
-  // -------------------------------------------------------------------------
   // Product Lookup + Add to Cart
-  // -------------------------------------------------------------------------
   async function lookupAndAdd(query) {
     // Try exact barcode match first
     let product = await window.api.getProductByBarcode(query);
@@ -88,9 +76,7 @@
     addToCart(product);
   }
 
-  // -------------------------------------------------------------------------
   // Cart Operations
-  // -------------------------------------------------------------------------
   function addToCart(product) {
     const existing = cart.find(item => item.product_id === product.id);
 
@@ -171,9 +157,7 @@
     focusBarcodeInput();
   }
 
-  // -------------------------------------------------------------------------
   // Cart Rendering
-  // -------------------------------------------------------------------------
   function renderCart() {
     if (cart.length === 0) {
       $cartEmpty.classList.remove('hidden');
@@ -223,9 +207,7 @@
     updateChange();
   }
 
-  // -------------------------------------------------------------------------
   // Tender / Change Calculation
-  // -------------------------------------------------------------------------
   $tenderInput.addEventListener('input', updateChange);
 
   function updateChange() {
@@ -248,9 +230,7 @@
     }
   }
 
-  // -------------------------------------------------------------------------
   // Checkout Flow
-  // -------------------------------------------------------------------------
   $chargeBtn.addEventListener('click', processCheckout);
 
   async function processCheckout() {
@@ -315,9 +295,7 @@
     }
   }
 
-  // -------------------------------------------------------------------------
   // Modal Close
-  // -------------------------------------------------------------------------
   $modalCloseBtn.addEventListener('click', () => {
     $checkoutModal.classList.add('hidden');
     focusBarcodeInput();
@@ -331,15 +309,11 @@
     }
   });
 
-  // -------------------------------------------------------------------------
   // Button Handlers
-  // -------------------------------------------------------------------------
   $clearCartBtn.addEventListener('click', clearCart);
   $holdBtn.addEventListener('click', holdCart);
 
-  // -------------------------------------------------------------------------
   // Keyboard Shortcuts (POS-specific)
-  // -------------------------------------------------------------------------
   document.addEventListener('keydown', (e) => {
     // Don't interfere with modals or login
     if (!document.getElementById('appShell') ||
@@ -373,9 +347,7 @@
     }
   });
 
-  // -------------------------------------------------------------------------
   // Toast Notifications
-  // -------------------------------------------------------------------------
   function showToast(message, type = 'info') {
     const colors = {
       success: 'bg-brand-900/50 border border-brand-500/30 text-brand-300',
@@ -401,16 +373,12 @@
     }, 2500);
   }
 
-  // -------------------------------------------------------------------------
   // Focus Helper
-  // -------------------------------------------------------------------------
   function focusBarcodeInput() {
     setTimeout(() => $barcodeInput.focus(), 50);
   }
 
-  // -------------------------------------------------------------------------
   // Expose methods for inline onclick handlers
-  // -------------------------------------------------------------------------
   window._pos = {
     updateQty: updateQuantity,
     remove:    removeFromCart,

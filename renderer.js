@@ -1,17 +1,11 @@
-// ============================================================================
 // PharmaSEE — renderer.js
 // Frontend Logic: Authentication, Navigation, Role-Based Access Control
-// ============================================================================
 
-// ---------------------------------------------------------------------------
 // State
-// ---------------------------------------------------------------------------
 let currentUser = null;     // { id, username, role }
 let currentView = 'pos';    // active view name
 
-// ---------------------------------------------------------------------------
 // DOM References
-// ---------------------------------------------------------------------------
 const $loginScreen  = document.getElementById('loginScreen');
 const $appShell     = document.getElementById('appShell');
 const $loginForm    = document.getElementById('loginForm');
@@ -39,9 +33,7 @@ const VIEW_TITLES = {
   audits:    'Stock Audits',
 };
 
-// ---------------------------------------------------------------------------
 // Authentication
-// ---------------------------------------------------------------------------
 $loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const username = document.getElementById('loginUsername').value.trim();
@@ -92,9 +84,7 @@ $logoutBtn.addEventListener('click', async () => {
   exitApp();
 });
 
-// ---------------------------------------------------------------------------
 // App Enter / Exit
-// ---------------------------------------------------------------------------
 function enterApp() {
   // Update user display
   $userName.textContent  = currentUser.username;
@@ -130,9 +120,7 @@ function exitApp() {
   document.getElementById('loginUsername').focus();
 }
 
-// ---------------------------------------------------------------------------
 // Role-Based Access Control
-// ---------------------------------------------------------------------------
 function applyRoleAccess() {
   const role = currentUser.role;
   // Hide/show elements marked with data-role
@@ -145,9 +133,7 @@ function applyRoleAccess() {
   });
 }
 
-// ---------------------------------------------------------------------------
 // Navigation
-// ---------------------------------------------------------------------------
 function navigateTo(viewName) {
   currentView = viewName;
 
@@ -176,9 +162,7 @@ document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
 // Expose globally for the low-stock badge onclick
 window.navigateTo = navigateTo;
 
-// ---------------------------------------------------------------------------
 // Scanner IP Display
-// ---------------------------------------------------------------------------
 async function loadScannerIP() {
   try {
     const ip = await window.api.getLocalIP();
@@ -188,9 +172,7 @@ async function loadScannerIP() {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Low-Stock Alert Check
-// ---------------------------------------------------------------------------
 async function checkLowStock() {
   try {
     const items = await window.api.getLowStock();
@@ -205,9 +187,7 @@ async function checkLowStock() {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Clock (top bar)
-// ---------------------------------------------------------------------------
 function updateClock() {
   const now = new Date();
   const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
@@ -216,9 +196,7 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// ---------------------------------------------------------------------------
 // Keyboard Shortcuts
-// ---------------------------------------------------------------------------
 document.addEventListener('keydown', (e) => {
   // F1 — go to POS
   if (e.key === 'F1' && currentUser) {
@@ -242,9 +220,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ---------------------------------------------------------------------------
-// Mobile Barcode Scanner Listener (Socket.io → IPC → here)
-// ---------------------------------------------------------------------------
+// Mobile Barcode Scanner Listener (Socket.io to IPC to here)
 window.api.onBarcodeScanned((barcode) => {
   console.log('[Scanner] Barcode received via mobile:', barcode);
   // If not on POS view, switch to it
@@ -254,9 +230,7 @@ window.api.onBarcodeScanned((barcode) => {
   window.dispatchEvent(new CustomEvent('pharmasee:barcode', { detail: barcode }));
 });
 
-// ---------------------------------------------------------------------------
 // Session Persistence Check (on app load)
-// ---------------------------------------------------------------------------
 (async () => {
   const session = await window.api.getSession();
   if (session) {

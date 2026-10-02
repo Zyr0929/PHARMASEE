@@ -1,7 +1,5 @@
-// ============================================================================
 // PharmaSEE — main.js
 // Electron Main Process: Window, IPC Handlers, Express + Socket.io Server
-// ============================================================================
 
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path   = require('path');
@@ -34,15 +32,11 @@ const {
   runTransaction,
 } = require('./db');
 
-// ---------------------------------------------------------------------------
 // Global state
-// ---------------------------------------------------------------------------
 let mainWindow    = null;
 let currentUser   = null;   // { id, username, role }
 
-// ---------------------------------------------------------------------------
 // 1. Electron Window
-// ---------------------------------------------------------------------------
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -64,9 +58,7 @@ function createWindow() {
   // mainWindow.webContents.openDevTools();
 }
 
-// ---------------------------------------------------------------------------
 // 2. IPC Handlers — Auth
-// ---------------------------------------------------------------------------
 ipcMain.handle('auth:login', (_event, username, password) => {
   const user = stmtGetUserByUsername.get(username);
   if (!user) return { success: false, message: 'User not found.' };
@@ -87,9 +79,7 @@ ipcMain.handle('auth:session', () => {
   return currentUser || null;
 });
 
-// ---------------------------------------------------------------------------
 // 3. IPC Handlers — Products / Inventory
-// ---------------------------------------------------------------------------
 ipcMain.handle('products:getAll', () => {
   return stmtGetAllProducts.all();
 });
@@ -129,9 +119,7 @@ ipcMain.handle('products:lowStock', () => {
   return stmtLowStock.all();
 });
 
-// ---------------------------------------------------------------------------
 // 4. IPC Handlers — POS Checkout
-// ---------------------------------------------------------------------------
 ipcMain.handle('pos:checkout', (_event, cartItems, cashierId) => {
   // cartItems = [{ product_id, quantity, unit_price, subtotal }, …]
   try {
@@ -165,18 +153,14 @@ ipcMain.handle('pos:checkout', (_event, cartItems, cashierId) => {
   }
 });
 
-// ---------------------------------------------------------------------------
 // 5. IPC Handlers — Reports
-// ---------------------------------------------------------------------------
 ipcMain.handle('reports:sales', (_event, from, to) => {
   return stmtGetSalesInRange.all(from, to);
 });
 
-// ---------------------------------------------------------------------------
 // 6. IPC Handlers — Predictive Algorithm Engine
-// ---------------------------------------------------------------------------
 
-// --- ABC Classification ---
+// ABC Classification
 ipcMain.handle('algo:abc', () => {
   const products = stmtGetAllProducts.all();
 
@@ -190,7 +174,7 @@ ipcMain.handle('algo:abc', () => {
 
   const salesData = stmtGetSalesInRange.all(from, to);
 
-  // Map product_id → total_qty sold
+  // Map product_id to total_qty sold
   const qtyMap = {};
   for (const row of salesData) {
     qtyMap[row.product_id] = row.total_qty;
@@ -223,7 +207,7 @@ ipcMain.handle('algo:abc', () => {
   return { success: true, count: items.length };
 });
 
-// --- Dynamic Safety Stock & Reorder Point ---
+// Dynamic Safety Stock & Reorder Point
 ipcMain.handle('algo:safetyReorder', () => {
   const products = stmtGetAllProducts.all();
   const Z_SCORE = 1.65; // ~95 % service level
@@ -260,9 +244,7 @@ ipcMain.handle('algo:safetyReorder', () => {
   return { success: true, updated };
 });
 
-// ---------------------------------------------------------------------------
 // 7. IPC Handlers — Audits
-// ---------------------------------------------------------------------------
 ipcMain.handle('audits:getAll', () => {
   return stmtGetAudits.all();
 });
@@ -289,9 +271,7 @@ ipcMain.handle('audits:submit', (_event, data) => {
   return { success: true, discrepancyRate: Math.round(discrepancyRate * 100) / 100 };
 });
 
-// ---------------------------------------------------------------------------
 // 8. IPC Utility — Local IP (for mobile scanner URL)
-// ---------------------------------------------------------------------------
 function getLocalIPv4() {
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
@@ -308,9 +288,7 @@ ipcMain.handle('util:localIP', () => {
   return getLocalIPv4();
 });
 
-// ---------------------------------------------------------------------------
 // 9. Express + Socket.io  — Mobile Barcode Scanner Server (port 3000)
-// ---------------------------------------------------------------------------
 function startScannerServer() {
   const https = require('https');
   const http  = require('http');
@@ -407,9 +385,7 @@ function setupSocketIO(server) {
   });
 }
 
-// ---------------------------------------------------------------------------
 // 10. App Lifecycle
-// ---------------------------------------------------------------------------
 app.whenReady().then(() => {
   createWindow();
   startScannerServer();
