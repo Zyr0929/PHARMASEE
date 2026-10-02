@@ -1,15 +1,11 @@
-// ============================================================================
 // PharmaSEE — db.js
 // Database Initialization & Helper Functions (better-sqlite3 + bcryptjs)
-// ============================================================================
 
 const path = require('path');
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 
-// ---------------------------------------------------------------------------
 // 1. Database Location — stored next to the executable / project root
-// ---------------------------------------------------------------------------
 const DB_PATH = path.join(__dirname, 'pharmasee.db');
 const db = new Database(DB_PATH);
 
@@ -18,9 +14,7 @@ db.pragma('journal_mode = WAL');
 // Enforce foreign-key constraints
 db.pragma('foreign_keys = ON');
 
-// ---------------------------------------------------------------------------
 // 2. Schema Creation (idempotent — safe to call on every launch)
-// ---------------------------------------------------------------------------
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,10 +69,8 @@ db.exec(`
   );
 `);
 
-// ---------------------------------------------------------------------------
 // 3. Seed Default Admin Account (only if no users exist yet)
-//    Default credentials:  admin / pharmasee2024
-// ---------------------------------------------------------------------------
+//    I set the default  to  admin / pharmasee2024
 const userCount = db.prepare('SELECT COUNT(*) AS cnt FROM users').get().cnt;
 if (userCount === 0) {
   const hash = bcrypt.hashSync('pharmasee2024', 10);
@@ -95,10 +87,8 @@ if (userCount === 0) {
   console.log('[DB] Default cashier account created (cashier / cashier123)');
 }
 
-// ---------------------------------------------------------------------------
 // 3b. Seed Sample Products (only if products table is empty)
 //     Common Philippine OTC medicines with realistic pricing
-// ---------------------------------------------------------------------------
 const productCount = db.prepare('SELECT COUNT(*) AS cnt FROM products').get().cnt;
 if (productCount === 0) {
   const sampleProducts = [
@@ -129,16 +119,13 @@ if (productCount === 0) {
   console.log(`[DB] Seeded ${sampleProducts.length} sample products`);
 }
 
-// ---------------------------------------------------------------------------
 // 4. Prepared-statement helpers (exported for use in IPC handlers)
-// ---------------------------------------------------------------------------
-
-// ---- Auth ----
+// Auth
 const stmtGetUserByUsername = db.prepare(
   'SELECT * FROM users WHERE username = ?'
 );
 
-// ---- Products ----
+// Products
 const stmtGetAllProducts = db.prepare(
   'SELECT * FROM products ORDER BY brand_name ASC'
 );
@@ -168,7 +155,7 @@ const stmtDeductStock = db.prepare(
   'UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?'
 );
 
-// ---- Sales ----
+// Sales
 const stmtInsertTransaction = db.prepare(`
   INSERT INTO sales_transactions (cashier_id, total_amount)
   VALUES (?, ?)
@@ -192,7 +179,7 @@ const stmtGetSalesInRange = db.prepare(`
   ORDER BY total_revenue DESC
 `);
 
-// ---- Daily demand (for predictive engine) ----
+// Daily demand (for predictive engine)
 const stmtDailyDemand = db.prepare(`
   SELECT DATE(st.transaction_date) AS sale_date,
          SUM(si.quantity_sold)      AS daily_qty
@@ -203,7 +190,7 @@ const stmtDailyDemand = db.prepare(`
   ORDER BY sale_date
 `);
 
-// ---- Audits ----
+// Audits
 const stmtInsertAudit = db.prepare(`
   INSERT INTO inventory_audits (product_id, system_count, physical_count, discrepancy_rate)
   VALUES (?, ?, ?, ?)
@@ -215,7 +202,7 @@ const stmtGetAudits = db.prepare(`
   ORDER BY ia.audit_date DESC
 `);
 
-// ---- Algorithm update helpers ----
+// Algorithm update helpers
 const stmtUpdateABC = db.prepare(
   'UPDATE products SET abc_tier = ? WHERE id = ?'
 );
@@ -223,24 +210,20 @@ const stmtUpdateSafetyReorder = db.prepare(
   'UPDATE products SET safety_stock = ?, reorder_point = ? WHERE id = ?'
 );
 
-// ---- Low-stock alert ----
+// Low-stock alert 
 const stmtLowStock = db.prepare(`
   SELECT * FROM products
   WHERE reorder_point > 0 AND stock_quantity <= reorder_point
   ORDER BY stock_quantity ASC
 `);
 
-// ---------------------------------------------------------------------------
 // 5. Transaction wrapper (for multi-statement POS checkout)
-// ---------------------------------------------------------------------------
 function runTransaction(fn) {
   const transaction = db.transaction(fn);
   return transaction();
 }
 
-// ---------------------------------------------------------------------------
 // Exports
-// ---------------------------------------------------------------------------
 module.exports = {
   db,
   bcrypt,
