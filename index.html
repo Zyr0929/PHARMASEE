@@ -12,10 +12,10 @@
                  img-src 'self' data:;">
   <title>PharmaSEE POS</title>
 
-  <!-- Tailwind CSS (CDN) -->
+  <!-- Tailwind to guys pang css -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Chart.js (CDN) -->
+  <!-- Chart.js pang charting -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script>
     tailwind.config = {
@@ -30,7 +30,7 @@
     }
   </script>
 
-  <!-- Google Fonts — Inter for legibility -->
+  <!-- Google Fonts - Inter gagamitin ko-->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -171,9 +171,7 @@
     </div>
   </div>
 
-  <!-- ================================================================== -->
   <!-- MAIN APP SHELL (hidden until authenticated)                        -->
-  <!-- ================================================================== -->
   <div id="appShell" class="hidden h-full w-full flex">
 
     <!-- ---- Sidebar ---- -->
@@ -290,7 +288,7 @@
         <div id="view-pos" class="view active flex-col h-full">
           <div class="flex gap-5 h-full">
 
-            <!-- ======== LEFT: Scanner + Cart ======== -->
+            <!-- LEFT: Scanner + Cart  -->
             <div class="flex-1 flex flex-col min-w-0">
 
               <!-- Barcode Input Bar -->
@@ -422,7 +420,7 @@
           </div>
         </div>
 
-        <!-- ======== Checkout Success Modal ======== -->
+        <!-- Checkout Success Modal -->
         <div id="checkoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div class="bg-slate-800 border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-brand-600/20 flex items-center justify-center">
@@ -574,7 +572,7 @@
           </div>
         </div>
 
-        <!-- ======== Add / Edit Product Modal ======== -->
+        <!-- Add / Edit Product Modal -->
         <div id="productModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div class="bg-slate-800 border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <!-- Modal Header -->
@@ -805,7 +803,7 @@
           </div>
         </div>
 
-        <!-- ======== New Audit Modal ======== -->
+        <!-- New Audit Modal -->
         <div id="auditModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div class="bg-slate-800 border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-md mx-4">
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700/50">
@@ -846,9 +844,8 @@
     </main>
   </div>
 
-  <!-- ================================================================== -->
-  <!-- RENDERER SCRIPT                                                    -->
-  <!-- ================================================================== -->
+
+  <!-- Scripts redererrrr -->
   <script src="inventory.js"></script>
   <script src="reports.js"></script>
   <script src="audits.js"></script>
