@@ -218,15 +218,15 @@
     if (tendered > 0 && change >= 0) {
       $changeDisplay.textContent = peso(change);
       $changeDisplay.classList.remove('text-red-400');
-      $changeDisplay.classList.add('text-brand-400');
+      $changeDisplay.classList.add('text-ok-400');
     } else if (tendered > 0) {
       $changeDisplay.textContent = peso(change);
-      $changeDisplay.classList.remove('text-brand-400');
+      $changeDisplay.classList.remove('text-ok-400');
       $changeDisplay.classList.add('text-red-400');
     } else {
       $changeDisplay.textContent = '₱0.00';
       $changeDisplay.classList.remove('text-red-400');
-      $changeDisplay.classList.add('text-brand-400');
+      $changeDisplay.classList.add('text-ok-400');
     }
   }
 
@@ -350,9 +350,9 @@
   // Toast Notifications
   function showToast(message, type = 'info') {
     const colors = {
-      success: 'bg-brand-900/50 border border-brand-500/30 text-brand-300',
+      success: 'bg-ok-900/50 border border-ok-500/30 text-ok-400',
       error:   'bg-red-900/50 border border-red-500/30 text-red-300',
-      warning: 'bg-amber-900/50 border border-amber-500/30 text-amber-300',
+      warning: 'bg-sec1-900/50 border border-sec1-500/30 text-sec1-300',
       info:    'bg-slate-800 border border-slate-600/30 text-slate-300',
     };
 

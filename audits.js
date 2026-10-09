@@ -71,12 +71,12 @@
     $auditTableBody.innerHTML = allAudits.map((a, i) => {
       const variance = a.physical_count - a.system_count;
       const varClass = variance === 0 ? 'text-slate-400'
-                     : variance > 0   ? 'text-brand-400'
+                     : variance > 0   ? 'text-ok-400'
                      : 'text-red-400';
       const varSign  = variance > 0 ? '+' : '';
 
       const discClass = a.discrepancy_rate === 0 ? 'text-slate-400'
-                      : a.discrepancy_rate <= 5  ? 'text-amber-400'
+                      : a.discrepancy_rate <= 5  ? 'text-sec1-400'
                       : 'text-red-400';
 
       // Format date
@@ -158,8 +158,8 @@
     const variance      = physicalCount - systemCount;
     const discRate      = physicalCount === 0 ? 0 : (Math.abs(physicalCount - systemCount) / physicalCount) * 100;
     const varSign       = variance > 0 ? '+' : '';
-    const varClass      = variance === 0 ? 'text-slate-400' : variance > 0 ? 'text-brand-400' : 'text-red-400';
-    const discClass     = discRate === 0 ? 'text-slate-400' : discRate <= 5 ? 'text-amber-400' : 'text-red-400';
+    const varClass      = variance === 0 ? 'text-slate-400' : variance > 0 ? 'text-ok-400' : 'text-red-400';
+    const discClass     = discRate === 0 ? 'text-slate-400' : discRate <= 5 ? 'text-sec1-400' : 'text-red-400';
 
     $af_variance.textContent = `${varSign}${variance}`;
     $af_variance.className   = `font-medium ${varClass}`;

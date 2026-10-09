@@ -25,7 +25,7 @@
 
   <!-- Header -->
   <div class="text-center mb-6">
-    <h1 class="text-3xl font-bold text-emerald-400 tracking-wide">PharmaSEE</h1>
+    <h1 class="text-3xl font-bold text-red-400 tracking-wide">PharmaSEE</h1>
     <p class="text-slate-400 text-sm mt-1">Mobile Barcode Scanner</p>
   </div>
 
@@ -38,9 +38,9 @@
   </div>
 
   <!-- Last scanned feedback -->
-  <div id="lastScanned" class="hidden mt-4 bg-emerald-900/50 border border-emerald-500/30 rounded-lg px-6 py-3 text-center">
-    <p class="text-xs text-emerald-300 uppercase tracking-wider">Last Scanned</p>
-    <p id="lastCode" class="text-lg font-mono font-bold text-emerald-400 mt-1"></p>
+  <div id="lastScanned" class="hidden mt-4 bg-[#2D9A33]/20 border border-[#2D9A33]/30 rounded-lg px-6 py-3 text-center">
+    <p class="text-xs text-[#2D9A33] uppercase tracking-wider">Last Scanned</p>
+    <p id="lastCode" class="text-lg font-mono font-bold text-[#2D9A33] mt-1"></p>
   </div>
 
   <!-- Connection indicator -->
@@ -56,9 +56,9 @@
     const connText = document.getElementById('connText');
 
     socket.on('connect', () => {
-      connDot.className  = 'w-2 h-2 rounded-full bg-emerald-500';
+      connDot.className  = 'w-2 h-2 rounded-full bg-[#2D9A33]';
       connText.textContent = 'Connected';
-      connText.className   = 'text-emerald-400';
+      connText.className   = 'text-[#2D9A33]';
     });
 
     socket.on('disconnect', () => {

@@ -100,9 +100,9 @@
 
     // Color profit margin
     if (profitMargin >= 30) {
-      $rptMargin.className = 'text-2xl font-bold text-brand-400 mt-0.5';
+      $rptMargin.className = 'text-2xl font-bold text-ok-400 mt-0.5';
     } else if (profitMargin >= 15) {
-      $rptMargin.className = 'text-2xl font-bold text-amber-400 mt-0.5';
+      $rptMargin.className = 'text-2xl font-bold text-sec1-400 mt-0.5';
     } else {
       $rptMargin.className = 'text-2xl font-bold text-red-400 mt-0.5';
     }
@@ -138,16 +138,16 @@
           {
             label: 'Revenue',
             data: revenues,
-            backgroundColor: 'rgba(16, 185, 129, 0.6)',
-            borderColor: 'rgba(16, 185, 129, 1)',
+            backgroundColor: 'rgba(237, 27, 36, 0.6)',
+            borderColor: 'rgba(237, 27, 36, 1)',
             borderWidth: 1,
             borderRadius: 4,
           },
           {
             label: 'Profit',
             data: profits,
-            backgroundColor: 'rgba(99, 102, 241, 0.5)',
-            borderColor: 'rgba(99, 102, 241, 1)',
+            backgroundColor: 'rgba(27, 237, 228, 0.5)',
+            borderColor: 'rgba(27, 237, 228, 1)',
             borderWidth: 1,
             borderRadius: 4,
           }
@@ -208,14 +208,14 @@
         datasets: [{
           data: [countA, countB, countC, countNone],
           backgroundColor: [
-            'rgba(16, 185, 129, 0.7)',   // emerald
-            'rgba(245, 158, 11, 0.7)',   // amber
+            'rgba(27, 237, 228, 0.7)',   // teal
+            'rgba(237, 123, 27, 0.7)',   // orange
             'rgba(100, 116, 139, 0.7)',  // slate
             'rgba(51, 65, 85, 0.5)',     // dark slate
           ],
           borderColor: [
-            'rgba(16, 185, 129, 1)',
-            'rgba(245, 158, 11, 1)',
+            'rgba(27, 237, 228, 1)',
+            'rgba(237, 123, 27, 1)',
             'rgba(100, 116, 139, 1)',
             'rgba(51, 65, 85, 1)',
           ],
@@ -247,7 +247,7 @@
 
     $rptTopTable.innerHTML = data.map((row, i) => {
       const profit = row.total_revenue - (row.total_qty * row.unit_cost);
-      const profitClass = profit >= 0 ? 'text-brand-400' : 'text-red-400';
+      const profitClass = profit >= 0 ? 'text-ok-400' : 'text-red-400';
 
       return `
         <div class="grid grid-cols-[2.5rem_1fr_1fr_6rem_6rem_7rem_7rem] gap-2 px-4 py-2 border-b border-slate-700/20 hover:bg-slate-800/40 transition items-center text-sm">

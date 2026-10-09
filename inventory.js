@@ -133,7 +133,7 @@
       const isLow  = p.reorder_point > 0 && p.stock_quantity > 0 && p.stock_quantity <= p.reorder_point;
       const isOut   = p.stock_quantity <= 0;
       const rowBg   = isOut  ? 'bg-red-900/10 border-l-2 border-red-500/50'
-                    : isLow  ? 'bg-amber-900/10 border-l-2 border-amber-500/50'
+                    : isLow  ? 'bg-sec1-900/10 border-l-2 border-sec1-500/50'
                     : 'border-l-2 border-transparent';
 
       return `
@@ -153,7 +153,7 @@
           <!-- Stock with visual indicator -->
           <div class="text-center">
             <span class="inline-block px-1.5 py-0.5 rounded text-xs font-bold
-              ${isOut ? 'bg-red-900/40 text-red-400' : isLow ? 'bg-amber-900/40 text-amber-400' : 'text-slate-300'}">
+              ${isOut ? 'bg-red-900/40 text-red-400' : isLow ? 'bg-sec1-900/40 text-sec1-400' : 'text-slate-300'}">
               ${p.stock_quantity}
             </span>
           </div>
@@ -164,10 +164,10 @@
           </div>
 
           <!-- ROP -->
-          <span class="text-right text-xs ${p.reorder_point > 0 ? 'text-teal-400' : 'text-slate-600'}">${p.reorder_point > 0 ? p.reorder_point.toFixed(1) : '—'}</span>
+          <span class="text-right text-xs ${p.reorder_point > 0 ? 'text-sec2-400' : 'text-slate-600'}">${p.reorder_point > 0 ? p.reorder_point.toFixed(1) : '—'}</span>
 
           <!-- Safety Stock -->
-          <span class="text-right text-xs ${p.safety_stock > 0 ? 'text-indigo-400' : 'text-slate-600'}">${p.safety_stock > 0 ? p.safety_stock.toFixed(1) : '—'}</span>
+          <span class="text-right text-xs ${p.safety_stock > 0 ? 'text-sec2-400' : 'text-slate-600'}">${p.safety_stock > 0 ? p.safety_stock.toFixed(1) : '—'}</span>
 
           <!-- Actions -->
           <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition">
@@ -192,8 +192,8 @@
 
   // ABC Badge Helper
   function abcBadge(tier) {
-    if (tier === 'A') return '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-900/50 text-emerald-400 ring-1 ring-emerald-500/30">A</span>';
-    if (tier === 'B') return '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-900/50 text-amber-400 ring-1 ring-amber-500/30">B</span>';
+    if (tier === 'A') return '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-sec2-900/50 text-sec2-400 ring-1 ring-sec2-500/30">A</span>';
+    if (tier === 'B') return '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-sec1-900/50 text-sec1-400 ring-1 ring-sec1-500/30">B</span>';
     if (tier === 'C') return '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-700/50 text-slate-400 ring-1 ring-slate-500/30">C</span>';
     return '<span class="text-slate-600 text-[10px]">—</span>';
   }
