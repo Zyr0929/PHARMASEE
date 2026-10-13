@@ -64,20 +64,20 @@
   // Table Rendering
   function renderTable() {
     if (allAudits.length === 0) {
-      $auditTableBody.innerHTML = '<div class="text-center py-12 text-slate-500 text-sm">No audits recorded yet</div>';
+      $auditTableBody.innerHTML = '<div class="text-center py-12 text-slate-400 text-sm font-medium">No audits recorded yet</div>';
       return;
     }
 
     $auditTableBody.innerHTML = allAudits.map((a, i) => {
       const variance = a.physical_count - a.system_count;
       const varClass = variance === 0 ? 'text-slate-400'
-                     : variance > 0   ? 'text-ok-400'
-                     : 'text-red-400';
+                     : variance > 0   ? 'text-ok-600 font-bold'
+                     : 'text-brand-600 font-bold';
       const varSign  = variance > 0 ? '+' : '';
 
       const discClass = a.discrepancy_rate === 0 ? 'text-slate-400'
-                      : a.discrepancy_rate <= 5  ? 'text-sec1-400'
-                      : 'text-red-400';
+                      : a.discrepancy_rate <= 5  ? 'text-[#ED7B1B] font-bold'
+                      : 'text-brand-600 font-bold';
 
       // Format date
       const dateStr = a.audit_date ? new Date(a.audit_date).toLocaleDateString('en-PH', {
@@ -86,18 +86,18 @@
       }) : '—';
 
       return `
-        <div class="grid grid-cols-[3rem_1fr_1fr_6rem_6rem_7rem_7rem] gap-2 px-4 py-2 border-b border-slate-700/20
-                    hover:bg-slate-800/40 transition items-center text-sm">
-          <span class="text-slate-500 text-xs">${i + 1}</span>
+        <div class="grid grid-cols-[3rem_1fr_1fr_6rem_6rem_7rem_7rem] gap-2 px-4 py-2 border-b border-[#E0E0E0]
+                    hover:bg-[#F8F9FA] transition items-center text-sm">
+          <span class="text-slate-400 text-xs">${i + 1}</span>
           <div class="min-w-0">
-            <p class="text-white text-xs font-medium truncate">${a.brand_name || 'Unknown'}</p>
+            <p class="text-[#000000] text-xs font-semibold truncate">${a.brand_name || 'Unknown'}</p>
             <p class="text-slate-500 text-[10px] truncate">${a.generic_name || ''}</p>
           </div>
-          <span class="text-slate-400 text-xs">${dateStr}</span>
-          <span class="text-right text-slate-300 text-xs">${a.system_count}</span>
-          <span class="text-right text-white text-xs font-medium">${a.physical_count}</span>
-          <span class="text-right text-xs font-medium ${varClass}">${varSign}${variance}</span>
-          <span class="text-right text-xs font-medium ${discClass}">${a.discrepancy_rate.toFixed(1)}%</span>
+          <span class="text-slate-500 text-xs">${dateStr}</span>
+          <span class="text-right text-slate-600 text-xs font-medium">${a.system_count}</span>
+          <span class="text-right text-[#000000] text-xs font-bold">${a.physical_count}</span>
+          <span class="text-right text-xs ${varClass}">${varSign}${variance}</span>
+          <span class="text-right text-xs ${discClass}">${a.discrepancy_rate.toFixed(1)}%</span>
         </div>`;
     }).join('');
   }

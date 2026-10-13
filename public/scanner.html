@@ -15,38 +15,38 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <style>
-    body { background: #0f172a; }
+    body { background: #F8F9FA; color: #353535; }
     #reader { width: 100%; max-width: 400px; margin: 0 auto; }
     #reader video { border-radius: 12px; }
   </style>
 </head>
 
-<body class="min-h-screen flex flex-col items-center justify-center p-4 text-white font-sans">
+<body class="min-h-screen flex flex-col items-center justify-center p-4 font-sans bg-[#F8F9FA] text-[#353535]">
 
   <!-- Header -->
   <div class="text-center mb-6">
-    <h1 class="text-3xl font-bold text-red-400 tracking-wide">PharmaSEE</h1>
-    <p class="text-slate-400 text-sm mt-1">Mobile Barcode Scanner</p>
+    <h1 class="text-3xl font-extrabold text-[#000000] tracking-wide">Pharma<span class="text-[#ED1B24]">SEE</span></h1>
+    <p class="text-slate-500 text-sm mt-1">Mobile Barcode Scanner</p>
   </div>
 
   <!-- Scanner viewport -->
-  <div id="reader" class="rounded-xl overflow-hidden shadow-lg border border-slate-700"></div>
+  <div id="reader" class="rounded-xl overflow-hidden shadow-md border border-[#E0E0E0] bg-white"></div>
 
   <!-- Status messages -->
   <div id="status" class="mt-6 text-center">
-    <p class="text-slate-400 text-sm">Point your camera at a barcode…</p>
+    <p class="text-slate-500 text-sm font-medium">Point your camera at a barcode…</p>
   </div>
 
   <!-- Last scanned feedback -->
-  <div id="lastScanned" class="hidden mt-4 bg-[#2D9A33]/20 border border-[#2D9A33]/30 rounded-lg px-6 py-3 text-center">
-    <p class="text-xs text-[#2D9A33] uppercase tracking-wider">Last Scanned</p>
+  <div id="lastScanned" class="hidden mt-4 bg-emerald-50 border border-emerald-200 rounded-lg px-6 py-3 text-center shadow-xs">
+    <p class="text-xs text-[#2D9A33] uppercase tracking-wider font-semibold">Last Scanned</p>
     <p id="lastCode" class="text-lg font-mono font-bold text-[#2D9A33] mt-1"></p>
   </div>
 
   <!-- Connection indicator -->
-  <div id="connection" class="fixed bottom-4 left-4 flex items-center gap-2 bg-slate-800/80 rounded-full px-3 py-1.5 text-xs">
-    <span id="connDot" class="w-2 h-2 rounded-full bg-red-500"></span>
-    <span id="connText" class="text-slate-400">Disconnected</span>
+  <div id="connection" class="fixed bottom-4 left-4 flex items-center gap-2 bg-white border border-[#E0E0E0] shadow-sm rounded-full px-3.5 py-1.5 text-xs">
+    <span id="connDot" class="w-2 h-2 rounded-full bg-[#ED1B24]"></span>
+    <span id="connText" class="text-slate-500 font-medium">Disconnected</span>
   </div>
 
   <script>
@@ -58,13 +58,13 @@
     socket.on('connect', () => {
       connDot.className  = 'w-2 h-2 rounded-full bg-[#2D9A33]';
       connText.textContent = 'Connected';
-      connText.className   = 'text-[#2D9A33]';
+      connText.className   = 'text-[#2D9A33] font-semibold';
     });
 
     socket.on('disconnect', () => {
-      connDot.className  = 'w-2 h-2 rounded-full bg-red-500';
+      connDot.className  = 'w-2 h-2 rounded-full bg-[#ED1B24]';
       connText.textContent = 'Disconnected';
-      connText.className   = 'text-red-400';
+      connText.className   = 'text-[#ED1B24] font-semibold';
     });
 
     // ---- Barcode scanner (html5-qrcode) ----
@@ -102,7 +102,7 @@
       onScanSuccess
     ).catch(err => {
       document.getElementById('status').innerHTML =
-        `<p class="text-red-400 text-sm">Camera error: ${err}</p>`;
+        `<p class="text-[#ED1B24] text-sm font-semibold">Camera error: ${err}</p>`;
     });
   </script>
 </body>

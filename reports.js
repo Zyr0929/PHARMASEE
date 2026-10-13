@@ -158,7 +158,7 @@
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            labels: { color: '#94a3b8', font: { size: 11 } }
+            labels: { color: '#353535', font: { size: 11, weight: '600' } }
           },
           tooltip: {
             callbacks: {
@@ -169,7 +169,7 @@
         scales: {
           x: {
             ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 45 },
-            grid:  { color: 'rgba(51, 65, 85, 0.3)' }
+            grid:  { color: 'rgba(224, 224, 224, 0.6)' }
           },
           y: {
             ticks: {
@@ -177,7 +177,7 @@
               font: { size: 10 },
               callback: (v) => '₱' + v.toLocaleString()
             },
-            grid: { color: 'rgba(51, 65, 85, 0.3)' }
+            grid: { color: 'rgba(224, 224, 224, 0.6)' }
           }
         }
       }
@@ -208,16 +208,16 @@
         datasets: [{
           data: [countA, countB, countC, countNone],
           backgroundColor: [
-            'rgba(27, 237, 228, 0.7)',   // teal
-            'rgba(237, 123, 27, 0.7)',   // orange
-            'rgba(100, 116, 139, 0.7)',  // slate
-            'rgba(51, 65, 85, 0.5)',     // dark slate
+            'rgba(0, 137, 123, 0.85)',   // teal
+            'rgba(237, 123, 27, 0.85)',   // orange
+            'rgba(148, 163, 184, 0.7)',   // slate
+            'rgba(224, 224, 224, 0.8)',   // light gray
           ],
           borderColor: [
-            'rgba(27, 237, 228, 1)',
-            'rgba(237, 123, 27, 1)',
-            'rgba(100, 116, 139, 1)',
-            'rgba(51, 65, 85, 1)',
+            '#00897B',
+            '#ED7B1B',
+            '#94A3B8',
+            '#CBD5E1',
           ],
           borderWidth: 1,
         }]
@@ -241,23 +241,23 @@
   // Top Products Table
   function renderTopTable(data) {
     if (data.length === 0) {
-      $rptTopTable.innerHTML = '<div class="text-center py-6 text-slate-500 text-sm">No sales data for this period</div>';
+      $rptTopTable.innerHTML = '<div class="text-center py-6 text-slate-400 text-sm font-medium">No sales data for this period</div>';
       return;
     }
 
     $rptTopTable.innerHTML = data.map((row, i) => {
       const profit = row.total_revenue - (row.total_qty * row.unit_cost);
-      const profitClass = profit >= 0 ? 'text-ok-400' : 'text-red-400';
+      const profitClass = profit >= 0 ? 'text-ok-600' : 'text-brand-600';
 
       return `
-        <div class="grid grid-cols-[2.5rem_1fr_1fr_6rem_6rem_7rem_7rem] gap-2 px-4 py-2 border-b border-slate-700/20 hover:bg-slate-800/40 transition items-center text-sm">
-          <span class="text-slate-500 text-xs">${i + 1}</span>
-          <span class="text-white text-xs font-medium truncate">${row.brand_name}</span>
-          <span class="text-slate-400 text-xs truncate">${row.generic_name}</span>
-          <span class="text-right text-slate-300 text-xs">${row.total_qty}</span>
-          <span class="text-right text-slate-400 text-xs">${peso(row.unit_cost)}</span>
-          <span class="text-right text-white text-xs font-medium">${peso(row.total_revenue)}</span>
-          <span class="text-right text-xs font-medium ${profitClass}">${peso(profit)}</span>
+        <div class="grid grid-cols-[2.5rem_1fr_1fr_6rem_6rem_7rem_7rem] gap-2 px-4 py-2 border-b border-[#E0E0E0] hover:bg-[#F8F9FA] transition items-center text-sm">
+          <span class="text-slate-400 text-xs">${i + 1}</span>
+          <span class="text-[#000000] text-xs font-semibold truncate">${row.brand_name}</span>
+          <span class="text-slate-500 text-xs truncate">${row.generic_name}</span>
+          <span class="text-right text-[#353535] text-xs font-medium">${row.total_qty}</span>
+          <span class="text-right text-slate-500 text-xs font-medium">${peso(row.unit_cost)}</span>
+          <span class="text-right text-[#000000] text-xs font-bold">${peso(row.total_revenue)}</span>
+          <span class="text-right text-xs font-bold ${profitClass}">${peso(profit)}</span>
         </div>`;
     }).join('');
   }

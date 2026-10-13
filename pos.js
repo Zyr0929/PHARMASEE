@@ -166,26 +166,26 @@
       $cartEmpty.classList.add('hidden');
 
       $cartRows.innerHTML = cart.map((item, i) => `
-        <div class="grid grid-cols-[3rem_1fr_6rem_7rem_7rem_3rem] gap-2 px-4 py-2.5 border-b border-slate-700/30
-                    hover:bg-slate-800/50 transition items-center text-sm group">
-          <span class="text-slate-500 text-xs">${i + 1}</span>
+        <div class="grid grid-cols-[3rem_1fr_6rem_7rem_7rem_3rem] gap-2 px-4 py-2.5 border-b border-[#E0E0E0]
+                    hover:bg-[#F8F9FA] transition items-center text-sm group">
+          <span class="text-slate-400 text-xs">${i + 1}</span>
           <div class="min-w-0">
-            <p class="text-white font-medium truncate">${item.brand_name}</p>
+            <p class="text-[#000000] font-semibold truncate">${item.brand_name}</p>
             <p class="text-slate-500 text-xs truncate">${item.generic_name}</p>
           </div>
           <div class="flex items-center justify-center gap-1">
             <button onclick="window._pos.updateQty(${i}, ${item.quantity - 1})"
-                    class="w-6 h-6 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-bold flex items-center justify-center transition">−</button>
+                    class="w-6 h-6 rounded bg-[#E0E0E0] hover:bg-slate-300 text-[#353535] text-xs font-bold flex items-center justify-center transition">−</button>
             <input type="number" min="1" max="${item.stock_available}" value="${item.quantity}"
                    onchange="window._pos.updateQty(${i}, this.value)"
-                   class="w-10 text-center bg-transparent text-white text-sm font-semibold border-b border-slate-600 focus:border-brand-500 focus:outline-none">
+                   class="w-10 text-center bg-transparent text-[#000000] text-sm font-semibold border-b border-[#E0E0E0] focus:border-brand-600 focus:outline-none">
             <button onclick="window._pos.updateQty(${i}, ${item.quantity + 1})"
-                    class="w-6 h-6 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-bold flex items-center justify-center transition">+</button>
+                    class="w-6 h-6 rounded bg-[#E0E0E0] hover:bg-slate-300 text-[#353535] text-xs font-bold flex items-center justify-center transition">+</button>
           </div>
-          <span class="text-right text-slate-300">${peso(item.selling_price)}</span>
-          <span class="text-right text-white font-semibold">${peso(item.subtotal)}</span>
+          <span class="text-right text-slate-600 text-sm font-medium">${peso(item.selling_price)}</span>
+          <span class="text-right text-[#000000] font-bold text-sm">${peso(item.subtotal)}</span>
           <button onclick="window._pos.remove(${i})"
-                  class="w-6 h-6 rounded hover:bg-red-900/40 text-slate-600 hover:text-red-400 flex items-center justify-center transition opacity-0 group-hover:opacity-100">
+                  class="w-6 h-6 rounded hover:bg-red-50 text-slate-400 hover:text-brand-600 flex items-center justify-center transition opacity-0 group-hover:opacity-100">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -350,10 +350,10 @@
   // Toast Notifications
   function showToast(message, type = 'info') {
     const colors = {
-      success: 'bg-ok-900/50 border border-ok-500/30 text-ok-400',
-      error:   'bg-red-900/50 border border-red-500/30 text-red-300',
-      warning: 'bg-sec1-900/50 border border-sec1-500/30 text-sec1-300',
-      info:    'bg-slate-800 border border-slate-600/30 text-slate-300',
+      success: 'bg-ok-50 border border-ok-200 text-ok-700',
+      error:   'bg-red-50 border border-red-200 text-red-700',
+      warning: 'bg-amber-50 border border-amber-200 text-amber-800',
+      info:    'bg-white border border-[#E0E0E0] text-[#353535]',
     };
 
     const icons = {
