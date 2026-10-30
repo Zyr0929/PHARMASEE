@@ -69,6 +69,33 @@ db.exec(`
   );
 `);
 
+// Schema Migration Helper for Promos & Discounts
+function ensureColumn(table, column, definition) {
+  try {
+    const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+    if (!cols.some(c => c.name === column)) {
+      db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+    }
+  } catch (err) {
+    console.error(`[DB Migration] Failed to add ${column} to ${table}:`, err.message);
+  }
+}
+
+// Setable promotions on products
+ensureColumn('products', 'promo_type', "TEXT DEFAULT 'NONE'");
+ensureColumn('products', 'promo_value', 'REAL DEFAULT 0');
+ensureColumn('products', 'promo_active', 'INTEGER DEFAULT 0');
+
+// Senior / PWD & promo discounts on transactions
+ensureColumn('sales_transactions', 'subtotal_amount', 'REAL DEFAULT 0');
+ensureColumn('sales_transactions', 'discount_type', "TEXT DEFAULT 'NONE'");
+ensureColumn('sales_transactions', 'discount_amount', 'REAL DEFAULT 0');
+ensureColumn('sales_transactions', 'customer_info', 'TEXT DEFAULT NULL');
+
+// Items discount & free items (B1T1)
+ensureColumn('sales_items', 'free_quantity', 'INTEGER DEFAULT 0');
+ensureColumn('sales_items', 'discount_applied', 'REAL DEFAULT 0');
+
 // 3. Seed Default Admin Account (only if no users exist yet)
 //    I set the default  to  admin / pharmasee2024
 const userCount = db.prepare('SELECT COUNT(*) AS cnt FROM users').get().cnt;
@@ -136,8 +163,14 @@ const stmtGetProductById = db.prepare(
   'SELECT * FROM products WHERE id = ?'
 );
 const stmtInsertProduct = db.prepare(`
-  INSERT INTO products (barcode, brand_name, generic_name, unit_cost, selling_price, stock_quantity, lead_time_days)
-  VALUES (@barcode, @brand_name, @generic_name, @unit_cost, @selling_price, @stock_quantity, @lead_time_days)
+  INSERT INTO products (
+    barcode, brand_name, generic_name, unit_cost, selling_price, stock_quantity, lead_time_days,
+    promo_type, promo_value, promo_active
+  )
+  VALUES (
+    @barcode, @brand_name, @generic_name, @unit_cost, @selling_price, @stock_quantity, @lead_time_days,
+    COALESCE(@promo_type, 'NONE'), COALESCE(@promo_value, 0), COALESCE(@promo_active, 0)
+  )
 `);
 const stmtUpdateProduct = db.prepare(`
   UPDATE products
@@ -147,8 +180,16 @@ const stmtUpdateProduct = db.prepare(`
       unit_cost      = @unit_cost,
       selling_price  = @selling_price,
       stock_quantity = @stock_quantity,
-      lead_time_days = @lead_time_days
+      lead_time_days = @lead_time_days,
+      promo_type     = COALESCE(@promo_type, 'NONE'),
+      promo_value    = COALESCE(@promo_value, 0),
+      promo_active   = COALESCE(@promo_active, 0)
   WHERE id = @id
+`);
+const stmtSetProductPromo = db.prepare(`
+  UPDATE products
+  SET promo_type = ?, promo_value = ?, promo_active = ?
+  WHERE id = ?
 `);
 const stmtDeleteProduct = db.prepare('DELETE FROM products WHERE id = ?');
 const stmtDeductStock = db.prepare(
@@ -157,12 +198,12 @@ const stmtDeductStock = db.prepare(
 
 // Sales
 const stmtInsertTransaction = db.prepare(`
-  INSERT INTO sales_transactions (cashier_id, total_amount)
-  VALUES (?, ?)
+  INSERT INTO sales_transactions (cashier_id, total_amount, subtotal_amount, discount_type, discount_amount, customer_info)
+  VALUES (?, ?, ?, ?, ?, ?)
 `);
 const stmtInsertSaleItem = db.prepare(`
-  INSERT INTO sales_items (transaction_id, product_id, quantity_sold, unit_price, subtotal)
-  VALUES (?, ?, ?, ?, ?)
+  INSERT INTO sales_items (transaction_id, product_id, quantity_sold, unit_price, subtotal, free_quantity, discount_applied)
+  VALUES (?, ?, ?, ?, ?, ?, ?)
 `);
 const stmtGetSalesInRange = db.prepare(`
   SELECT si.product_id,
@@ -223,18 +264,36 @@ function runTransaction(fn) {
   return transaction();
 }
 
+// Admin verification helper (for Senior/PWD discount and supervisor approvals)
+const stmtGetAdmins = db.prepare(
+  "SELECT * FROM users WHERE role = 'admin'"
+);
+
+function verifyAdminPassword(password) {
+  if (!password) return { success: false, message: 'Password is required.' };
+  const admins = stmtGetAdmins.all();
+  for (const admin of admins) {
+    if (bcrypt.compareSync(password, admin.password_hash)) {
+      return { success: true, admin: { id: admin.id, username: admin.username } };
+    }
+  }
+  return { success: false, message: 'Invalid administrator password.' };
+}
+
 // Exports
 module.exports = {
   db,
   bcrypt,
   // Auth
   stmtGetUserByUsername,
+  verifyAdminPassword,
   // Products
   stmtGetAllProducts,
   stmtGetProductByBarcode,
   stmtGetProductById,
   stmtInsertProduct,
   stmtUpdateProduct,
+  stmtSetProductPromo,
   stmtDeleteProduct,
   stmtDeductStock,
   // Sales

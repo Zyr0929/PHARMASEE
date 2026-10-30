@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PharmaSEE — Mobile Scanner</title>
+  <link rel="icon" type="image/png" href="assets/icon.png">
 
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -24,7 +25,10 @@
 <body class="min-h-screen flex flex-col items-center justify-center p-4 font-sans bg-[#F8F9FA] text-[#353535]">
 
   <!-- Header -->
-  <div class="text-center mb-6">
+  <div class="text-center mb-6 flex flex-col items-center">
+    <div class="w-16 h-16 rounded-2xl bg-white border border-[#E0E0E0] flex items-center justify-center shadow-sm p-1 mb-3">
+      <img src="assets/logo-cropped.png" alt="PharmaSEE Logo" class="w-full h-full object-contain rounded-xl">
+    </div>
     <h1 class="text-3xl font-extrabold text-[#000000] tracking-wide">Pharma<span class="text-[#ED1B24]">SEE</span></h1>
     <p class="text-slate-500 text-sm mt-1">Mobile Barcode Scanner</p>
   </div>

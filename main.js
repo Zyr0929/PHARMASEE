@@ -13,11 +13,13 @@ const {
   db,
   bcrypt,
   stmtGetUserByUsername,
+  verifyAdminPassword,
   stmtGetAllProducts,
   stmtGetProductByBarcode,
   stmtGetProductById,
   stmtInsertProduct,
   stmtUpdateProduct,
+  stmtSetProductPromo,
   stmtDeleteProduct,
   stmtDeductStock,
   stmtInsertTransaction,
@@ -79,6 +81,10 @@ ipcMain.handle('auth:session', () => {
   return currentUser || null;
 });
 
+ipcMain.handle('auth:verifyAdmin', (_event, password) => {
+  return verifyAdminPassword(password);
+});
+
 // 3. IPC Handlers — Products / Inventory
 ipcMain.handle('products:getAll', () => {
   return stmtGetAllProducts.all();
@@ -119,19 +125,46 @@ ipcMain.handle('products:lowStock', () => {
   return stmtLowStock.all();
 });
 
+ipcMain.handle('products:setPromo', (_event, data) => {
+  try {
+    stmtSetProductPromo.run(
+      data.promo_type || 'NONE',
+      Number(data.promo_value) || 0,
+      data.promo_active ? 1 : 0,
+      data.id
+    );
+    return { success: true };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+});
+
 // 4. IPC Handlers — POS Checkout
-ipcMain.handle('pos:checkout', (_event, cartItems, cashierId) => {
-  // cartItems = [{ product_id, quantity, unit_price, subtotal }, …]
+ipcMain.handle('pos:checkout', (_event, cartItems, cashierId, discountData) => {
+  // cartItems = [{ product_id, quantity, unit_price, subtotal, free_quantity, discount_applied }, …]
+  // discountData = { type, amount, subtotal, customerInfo }
   try {
     const result = runTransaction(() => {
-      const totalAmount = cartItems.reduce((sum, i) => sum + i.subtotal, 0);
+      const subtotalAmount = cartItems.reduce((sum, i) => sum + i.subtotal, 0);
+      const discountAmount = discountData && discountData.amount ? Number(discountData.amount) : 0;
+      const totalAmount    = Math.max(0, subtotalAmount - discountAmount);
+      const discountType   = discountData && discountData.type ? discountData.type : 'NONE';
+      const customerInfo   = discountData && discountData.customerInfo ? discountData.customerInfo : null;
 
-      const txInfo = stmtInsertTransaction.run(cashierId, totalAmount);
+      const txInfo = stmtInsertTransaction.run(
+        cashierId,
+        totalAmount,
+        subtotalAmount,
+        discountType,
+        discountAmount,
+        customerInfo
+      );
       const txId   = txInfo.lastInsertRowid;
 
       for (const item of cartItems) {
-        // Deduct stock — fails gracefully if insufficient
-        const changes = stmtDeductStock.run(item.quantity, item.product_id, item.quantity);
+        // Physical inventory units to deduct: item.quantity
+        const physicalUnits = item.quantity;
+        const changes = stmtDeductStock.run(physicalUnits, item.product_id, physicalUnits);
         if (changes.changes === 0) {
           throw new Error(
             `Insufficient stock for product ID ${item.product_id}`
@@ -141,11 +174,20 @@ ipcMain.handle('pos:checkout', (_event, cartItems, cashierId) => {
           txId,
           item.product_id,
           item.quantity,
-          item.unit_price,
-          item.subtotal
+          item.unit_price || item.selling_price,
+          item.subtotal,
+          item.free_quantity || 0,
+          item.discount_applied || 0
         );
       }
-      return { transactionId: txId, totalAmount };
+      return {
+        transactionId: txId,
+        totalAmount,
+        subtotalAmount,
+        discountAmount,
+        discountType,
+        customerInfo
+      };
     });
     return { success: true, ...result };
   } catch (err) {

@@ -6,20 +6,22 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('api', {
 
   // Auth
-  login:        (username, password) => ipcRenderer.invoke('auth:login', username, password),
-  logout:       ()                   => ipcRenderer.invoke('auth:logout'),
-  getSession:   ()                   => ipcRenderer.invoke('auth:session'),
+  login:               (username, password) => ipcRenderer.invoke('auth:login', username, password),
+  logout:              ()                   => ipcRenderer.invoke('auth:logout'),
+  getSession:          ()                   => ipcRenderer.invoke('auth:session'),
+  verifyAdminPassword: (password)           => ipcRenderer.invoke('auth:verifyAdmin', password),
 
   // Products / Inventory
   getProducts:        ()     => ipcRenderer.invoke('products:getAll'),
   getProductByBarcode:(code) => ipcRenderer.invoke('products:getByBarcode', code),
   addProduct:         (data) => ipcRenderer.invoke('products:add', data),
   updateProduct:      (data) => ipcRenderer.invoke('products:update', data),
+  setProductPromo:    (data) => ipcRenderer.invoke('products:setPromo', data),
   deleteProduct:      (id)   => ipcRenderer.invoke('products:delete', id),
   getLowStock:        ()     => ipcRenderer.invoke('products:lowStock'),
 
   // POS / Sales
-  checkout:  (cartItems, cashierId) => ipcRenderer.invoke('pos:checkout', cartItems, cashierId),
+  checkout:  (cartItems, cashierId, discountData) => ipcRenderer.invoke('pos:checkout', cartItems, cashierId, discountData),
 
   // Reports & Analytics
   getSalesReport: (from, to) => ipcRenderer.invoke('reports:sales', from, to),

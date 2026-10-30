@@ -11,6 +11,7 @@
                  connect-src 'self';
                  img-src 'self' data:;">
   <title>PharmaSEE POS</title>
+  <link rel="icon" type="image/png" href="assets/icon.png">
 
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -106,12 +107,9 @@
     <div class="login-card rounded-2xl p-8 w-full max-w-md mx-4">
 
       <!-- Logo / Branding -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-50 border border-brand-100 mb-4 shadow-sm">
-          <svg class="w-9 h-9 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-          </svg>
+      <div class="text-center mb-8 flex flex-col items-center">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white border border-[#E0E0E0] mb-3 shadow-sm p-1">
+          <img src="assets/logo-cropped.png" alt="PharmaSEE Logo" class="w-full h-full object-contain rounded-xl">
         </div>
         <h1 class="text-3xl font-extrabold text-[#000000] tracking-tight">Pharma<span class="text-brand-600">SEE</span></h1>
         <p class="text-slate-500 text-sm mt-1">Pharmacy Inventory & POS System</p>
@@ -186,11 +184,8 @@
       <!-- Sidebar Header -->
       <div class="px-5 py-4 border-b border-[#E0E0E0]">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center shadow-xs">
-            <svg class="w-5 h-5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-            </svg>
+          <div class="w-9 h-9 rounded-xl bg-white border border-[#E0E0E0] flex items-center justify-center shadow-xs overflow-hidden p-0.5 flex-shrink-0">
+            <img src="assets/logo-cropped.png" alt="PharmaSEE Logo" class="w-full h-full object-contain rounded-lg">
           </div>
           <div>
             <h2 class="text-base font-bold text-[#000000] leading-none">Pharma<span class="text-brand-600">SEE</span></h2>
@@ -362,11 +357,58 @@
                     <span class="text-slate-500 font-medium">Total quantity</span>
                     <span id="cartTotalQty" class="text-[#000000] font-bold">0</span>
                   </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-slate-500 font-medium">Subtotal</span>
+                    <span id="cartSubtotal" class="text-[#000000] font-semibold">&#8369;0.00</span>
+                  </div>
+                  <div id="cartPromoSavingsRow" class="hidden flex justify-between text-sm text-brand-600">
+                    <span class="font-medium flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                      Promo Savings
+                    </span>
+                    <span id="cartPromoSavings" class="font-bold">-&#8369;0.00</span>
+                  </div>
+                  <div id="cartSeniorDiscountRow" class="hidden flex justify-between text-sm text-ok-600">
+                    <span id="cartSeniorDiscountLabel" class="font-medium flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      Senior/PWD (20%)
+                    </span>
+                    <span id="cartSeniorDiscountAmount" class="font-bold">-&#8369;0.00</span>
+                  </div>
                 </div>
 
-                <div class="border-t border-[#E0E0E0] pt-4">
+                <!-- Senior/PWD Trigger / Banner -->
+                <div class="border-t border-[#E0E0E0] pt-3">
+                  <div id="seniorPwdTriggerContainer">
+                    <button id="btnOpenSeniorPwd" type="button"
+                            class="w-full py-2 px-3 bg-[#F8F9FA] hover:bg-brand-50/50 border border-[#E0E0E0] hover:border-brand-500 rounded-xl text-xs font-semibold text-[#353535] flex items-center justify-between transition group shadow-2xs">
+                      <span class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        <span>Apply Senior / PWD (20%)</span>
+                      </span>
+                      <span class="text-brand-600 font-bold group-hover:underline">Apply</span>
+                    </button>
+                  </div>
+                  <div id="seniorPwdActiveBanner" class="hidden p-2.5 bg-ok-50 border border-ok-200 rounded-xl flex items-center justify-between text-xs">
+                    <div class="min-w-0 pr-2">
+                      <p class="font-bold text-ok-800 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-ok-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                        <span id="appliedDiscountLabel">Senior Citizen (20%)</span>
+                      </p>
+                      <p id="appliedCustomerInfo" class="text-slate-500 text-[11px] truncate">Maria Santos (OSCA-123)</p>
+                    </div>
+                    <button id="btnRemoveDiscount" type="button" title="Remove discount"
+                            class="text-red-500 hover:text-red-700 font-semibold px-2 py-1 rounded hover:bg-red-50 text-[11px] transition flex-shrink-0">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+
+                <div class="border-t border-[#E0E0E0] pt-3">
                   <div class="flex justify-between items-baseline">
-                    <span class="text-[#353535] text-sm font-semibold">Total</span>
+                    <span class="text-[#353535] text-sm font-semibold">Total Payable</span>
                     <span id="cartTotal" class="text-3xl font-extrabold text-[#000000]">&#8369;0.00</span>
                   </div>
                 </div>
@@ -418,11 +460,100 @@
 
               <!-- Keyboard shortcuts hint -->
               <div class="text-[11px] text-slate-400 space-y-0.5 px-1">
-                <p><kbd class="px-1 py-0.5 bg-white border border-[#E0E0E0] rounded text-slate-600 font-mono shadow-3xs">F5</kbd> Focus scanner &nbsp; <kbd class="px-1 py-0.5 bg-white border border-[#E0E0E0] rounded text-slate-600 font-mono shadow-3xs">F8</kbd> Charge</p>
+                <p><kbd class="px-1 py-0.5 bg-white border border-[#E0E0E0] rounded text-slate-600 font-mono shadow-3xs">F5</kbd> Scanner &nbsp; <kbd class="px-1 py-0.5 bg-white border border-[#E0E0E0] rounded text-slate-600 font-mono shadow-3xs">F6</kbd> Senior/PWD &nbsp; <kbd class="px-1 py-0.5 bg-white border border-[#E0E0E0] rounded text-slate-600 font-mono shadow-3xs">F8</kbd> Charge</p>
                 <p><kbd class="px-1 py-0.5 bg-white border border-[#E0E0E0] rounded text-slate-600 font-mono shadow-3xs">Esc</kbd> Clear cart &nbsp; <kbd class="px-1 py-0.5 bg-white border border-[#E0E0E0] rounded text-slate-600 font-mono shadow-3xs">Del</kbd> Remove last</p>
               </div>
             </div>
 
+          </div>
+        </div>
+
+        <!-- Senior / PWD Discount Authorization Modal -->
+        <div id="seniorPwdModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs">
+          <div class="bg-white border border-[#E0E0E0] rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-[#E0E0E0] flex items-center justify-between bg-[#F8F9FA]">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-600">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-[#000000]">Senior / PWD 20% Discount</h3>
+                  <p class="text-xs text-slate-500">Requires Administrator Password Approval</p>
+                </div>
+              </div>
+              <button id="spCloseBtn" type="button" class="p-1 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="seniorPwdForm" class="p-6 space-y-4">
+              <!-- Discount Type -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Discount Category</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex items-center gap-2.5 p-3 rounded-xl border border-[#E0E0E0] bg-[#F8F9FA] cursor-pointer hover:border-brand-500 transition has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50/50">
+                    <input type="radio" name="spType" value="SENIOR" checked class="text-brand-600 focus:ring-brand-500">
+                    <div>
+                      <p class="text-xs font-bold text-[#000000]">Senior Citizen</p>
+                      <p class="text-[10px] text-slate-400">20% Statutory Disc.</p>
+                    </div>
+                  </label>
+                  <label class="flex items-center gap-2.5 p-3 rounded-xl border border-[#E0E0E0] bg-[#F8F9FA] cursor-pointer hover:border-brand-500 transition has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50/50">
+                    <input type="radio" name="spType" value="PWD" class="text-brand-600 focus:ring-brand-500">
+                    <div>
+                      <p class="text-xs font-bold text-[#000000]">Person w/ Disability</p>
+                      <p class="text-[10px] text-slate-400">20% Statutory Disc.</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Customer ID & Name -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-[#353535] mb-1">ID Number <span class="text-brand-600">*</span></label>
+                  <input id="spIdNumber" type="text" required placeholder="e.g. OSCA-2024-001"
+                         class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E0E0E0] rounded-lg text-xs text-[#000000] focus:bg-white focus:outline-none focus:border-brand-600">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-[#353535] mb-1">Customer Name <span class="text-brand-600">*</span></label>
+                  <input id="spCustomerName" type="text" required placeholder="e.g. Maria Santos"
+                         class="w-full px-3 py-2 bg-[#F8F9FA] border border-[#E0E0E0] rounded-lg text-xs text-[#000000] focus:bg-white focus:outline-none focus:border-brand-600">
+                </div>
+              </div>
+
+              <!-- Admin Password Authorization -->
+              <div class="p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-1.5">
+                <label class="block text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                  Admin Password Authorization <span class="text-brand-600">*</span>
+                </label>
+                <input id="spAdminPassword" type="password" required placeholder="Enter admin password to approve"
+                       class="w-full px-3 py-2 bg-white border border-amber-300 rounded-lg text-xs text-[#000000] focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-600">
+                <p class="text-[11px] text-amber-700">A supervisor or administrator must authorize applying the 20% discount.</p>
+              </div>
+
+              <!-- Error message box -->
+              <div id="spError" class="hidden text-xs text-brand-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 font-medium"></div>
+
+              <!-- Actions -->
+              <div class="flex gap-2.5 pt-1">
+                <button type="button" id="spCancelBtn" class="flex-1 py-2.5 bg-[#E0E0E0] hover:bg-slate-300 text-[#353535] text-xs font-semibold rounded-xl transition">
+                  Cancel
+                </button>
+                <button type="submit" id="spSubmitBtn" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition shadow-md">
+                  Authorize & Apply
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -437,13 +568,25 @@
             <h3 class="text-xl font-bold text-[#000000] mb-1">Transaction Complete</h3>
             <p id="modalTxId" class="text-slate-500 text-sm mb-4">TX #0001</p>
 
-            <div class="bg-[#F8F9FA] border border-[#E0E0E0] rounded-xl p-4 mb-4 space-y-2">
+            <div class="bg-[#F8F9FA] border border-[#E0E0E0] rounded-xl p-4 mb-4 space-y-2 text-left">
+              <div id="modalSubtotalRow" class="hidden flex justify-between text-xs text-slate-500">
+                <span>Subtotal</span>
+                <span id="modalSubtotal" class="font-semibold text-[#000000]">&#8369;0.00</span>
+              </div>
+              <div id="modalDiscountRow" class="hidden flex justify-between text-xs text-ok-600">
+                <span id="modalDiscountLabel">Senior / PWD (20%)</span>
+                <span id="modalDiscountAmount" class="font-bold">-&#8369;0.00</span>
+              </div>
+              <div id="modalCustomerRow" class="hidden border-b border-[#E0E0E0] pb-2 text-[11px] text-slate-500">
+                <span class="font-medium text-slate-700">Customer: </span>
+                <span id="modalCustomerInfo"></span>
+              </div>
               <div class="flex justify-between text-sm">
-                <span class="text-slate-500">Total</span>
+                <span class="text-slate-600 font-medium">Total Paid</span>
                 <span id="modalTotal" class="text-[#000000] font-bold">&#8369;0.00</span>
               </div>
               <div class="flex justify-between text-sm">
-                <span class="text-slate-500">Tendered</span>
+                <span class="text-slate-600 font-medium">Tendered</span>
                 <span id="modalTendered" class="text-[#000000] font-bold">&#8369;0.00</span>
               </div>
               <div class="border-t border-[#E0E0E0] pt-2 flex justify-between text-sm">
@@ -658,6 +801,42 @@
                                 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition"
                          placeholder="7">
                 </div>
+              </div>
+
+              <!-- Promotion Configuration (Setable by Admin) -->
+              <div class="p-3.5 bg-[#F8F9FA] border border-[#E0E0E0] rounded-xl space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-[#000000] uppercase tracking-wider flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                    </svg>
+                    Promotion Settings
+                  </span>
+                  <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#353535]">
+                    <input type="checkbox" id="pf_promo_active" class="w-4 h-4 text-brand-600 rounded border-[#E0E0E0] focus:ring-brand-500">
+                    Active Promo
+                  </label>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">Promo Type</label>
+                    <select id="pf_promo_type" class="w-full px-2.5 py-1.5 bg-white border border-[#E0E0E0] rounded-lg text-xs text-[#000000] focus:border-brand-600 focus:outline-none">
+                      <option value="NONE">None (Regular Price)</option>
+                      <option value="B1T1">Buy 1 Take 1 Free (B1T1)</option>
+                      <option value="PERCENT">Percentage Discount (% Off)</option>
+                      <option value="FLAT">Flat Discount (₱ Off per unit)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label id="pf_promo_value_label" class="block text-xs font-medium text-slate-600 mb-1">Promo Value</label>
+                    <input id="pf_promo_value" type="number" min="0" step="0.5" value="0"
+                           class="w-full px-2.5 py-1.5 bg-white border border-[#E0E0E0] rounded-lg text-xs text-[#000000] focus:border-brand-600 focus:outline-none"
+                           placeholder="0">
+                  </div>
+                </div>
+                <p id="pf_promo_hint" class="text-[11px] text-slate-500">Set a promotion to activate special pricing when this product is scanned in POS.</p>
               </div>
 
               <!-- Form Error -->

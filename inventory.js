@@ -40,6 +40,11 @@
   const $pf_price    = document.getElementById('pf_price');
   const $pf_stock    = document.getElementById('pf_stock');
   const $pf_leadtime = document.getElementById('pf_leadtime');
+  const $pf_promo_type        = document.getElementById('pf_promo_type');
+  const $pf_promo_value       = document.getElementById('pf_promo_value');
+  const $pf_promo_value_label = document.getElementById('pf_promo_value_label');
+  const $pf_promo_active      = document.getElementById('pf_promo_active');
+  const $pf_promo_hint        = document.getElementById('pf_promo_hint');
 
   // Delete Modal
   const $deleteModal        = document.getElementById('deleteModal');
@@ -142,7 +147,10 @@
           <span class="text-slate-400 text-xs">${i + 1}</span>
           <span class="font-mono text-xs text-slate-500 truncate">${p.barcode}</span>
           <div class="min-w-0">
-            <p class="text-[#000000] font-semibold truncate text-[13px]">${p.brand_name}</p>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <p class="text-[#000000] font-semibold truncate text-[13px]">${p.brand_name}</p>
+              ${promoBadge(p)}
+            </div>
           </div>
           <div class="min-w-0">
             <p class="text-slate-500 text-xs truncate">${p.generic_name}</p>
@@ -198,6 +206,48 @@
     return '<span class="text-slate-400 text-[10px]">—</span>';
   }
 
+  // Promo Badge Helper
+  function promoBadge(p) {
+    if (!p.promo_active || !p.promo_type || p.promo_type === 'NONE') return '';
+    if (p.promo_type === 'B1T1') {
+      return '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-brand-600 border border-brand-200">B1T1</span>';
+    }
+    if (p.promo_type === 'PERCENT') {
+      return `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">${p.promo_value}% OFF</span>`;
+    }
+    if (p.promo_type === 'FLAT') {
+      return `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-200">-₱${p.promo_value}</span>`;
+    }
+    return '';
+  }
+
+  // Promo Form Synchronization
+  function updatePromoFields() {
+    const type = $pf_promo_type.value;
+    if (type === 'NONE') {
+      $pf_promo_active.checked = false;
+      $pf_promo_value.disabled = true;
+      $pf_promo_value.value = 0;
+      $pf_promo_hint.textContent = 'Regular pricing applies.';
+    } else if (type === 'B1T1') {
+      $pf_promo_active.checked = true;
+      $pf_promo_value.disabled = true;
+      $pf_promo_value.value = 0;
+      $pf_promo_hint.textContent = 'Buy 1 Take 1: When 2 units are purchased, 1 unit is free (100% off 2nd unit). Physical inventory deducts 2 units.';
+    } else if (type === 'PERCENT') {
+      $pf_promo_active.checked = true;
+      $pf_promo_value.disabled = false;
+      $pf_promo_value_label.textContent = 'Discount Percentage (%)';
+      $pf_promo_hint.textContent = 'Enter the percentage discount (e.g., 10 for 10% off).';
+    } else if (type === 'FLAT') {
+      $pf_promo_active.checked = true;
+      $pf_promo_value.disabled = false;
+      $pf_promo_value_label.textContent = 'Discount Amount (₱)';
+      $pf_promo_hint.textContent = 'Enter the flat peso discount per unit (e.g., 5 for ₱5 off).';
+    }
+  }
+  $pf_promo_type.addEventListener('change', updatePromoFields);
+
   // Add / Edit Product Modal
   $btnAddProduct.addEventListener('click', () => openProductModal());
   $productModalClose.addEventListener('click', closeProductModal);
@@ -220,12 +270,20 @@
       $pf_price.value    = product.selling_price;
       $pf_stock.value    = product.stock_quantity;
       $pf_leadtime.value = product.lead_time_days;
+      $pf_promo_type.value   = product.promo_type || 'NONE';
+      $pf_promo_value.value  = product.promo_value || 0;
+      updatePromoFields();
+      $pf_promo_active.checked = Boolean(product.promo_active);
     } else {
       // Add mode
       $productModalTitle.textContent = 'Add Product';
       $pf_id.value = '';
       $productForm.reset();
       $pf_leadtime.value = 7;
+      $pf_promo_type.value = 'NONE';
+      $pf_promo_value.value = 0;
+      updatePromoFields();
+      $pf_promo_active.checked = false;
     }
 
     $productModal.classList.remove('hidden');
@@ -249,6 +307,9 @@
       selling_price:  parseFloat($pf_price.value) || 0,
       stock_quantity: parseInt($pf_stock.value, 10) || 0,
       lead_time_days: parseInt($pf_leadtime.value, 10) || 7,
+      promo_type:     $pf_promo_type.value,
+      promo_value:    parseFloat($pf_promo_value.value) || 0,
+      promo_active:   $pf_promo_active.checked ? 1 : 0,
     };
 
     // Validation
