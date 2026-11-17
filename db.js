@@ -220,6 +220,21 @@ const stmtGetSalesInRange = db.prepare(`
   ORDER BY total_revenue DESC
 `);
 
+const stmtGetTransactionsInRange = db.prepare(`
+  SELECT st.id,
+         st.transaction_date,
+         u.username AS cashier,
+         st.subtotal_amount,
+         st.discount_type,
+         st.discount_amount,
+         st.total_amount,
+         st.customer_info
+  FROM sales_transactions st
+  LEFT JOIN users u ON u.id = st.cashier_id
+  WHERE st.transaction_date BETWEEN ? AND ?
+  ORDER BY st.transaction_date DESC
+`);
+
 // Daily demand (for predictive engine)
 const stmtDailyDemand = db.prepare(`
   SELECT DATE(st.transaction_date) AS sale_date,
@@ -300,6 +315,7 @@ module.exports = {
   stmtInsertTransaction,
   stmtInsertSaleItem,
   stmtGetSalesInRange,
+  stmtGetTransactionsInRange,
   stmtDailyDemand,
   // Audits
   stmtInsertAudit,

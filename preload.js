@@ -21,7 +21,15 @@ contextBridge.exposeInMainWorld('api', {
   getLowStock:        ()     => ipcRenderer.invoke('products:lowStock'),
 
   // POS / Sales
-  checkout:  (cartItems, cashierId, discountData) => ipcRenderer.invoke('pos:checkout', cartItems, cashierId, discountData),
+  checkout:     (cartItems, cashierId, discountData) => ipcRenderer.invoke('pos:checkout', cartItems, cashierId, discountData),
+  printReceipt: (data)                               => ipcRenderer.invoke('pos:printReceipt', data),
+
+  // Excel Import / Export
+  exportInventory:         ()         => ipcRenderer.invoke('export:inventory'),
+  importInventory:         ()         => ipcRenderer.invoke('import:inventory'),
+  downloadProductTemplate: ()         => ipcRenderer.invoke('inventory:downloadTemplate'),
+  exportSalesReport:       (from, to) => ipcRenderer.invoke('export:sales', from, to),
+  exportAudits:            ()         => ipcRenderer.invoke('export:audits'),
 
   // Reports & Analytics
   getSalesReport: (from, to) => ipcRenderer.invoke('reports:sales', from, to),

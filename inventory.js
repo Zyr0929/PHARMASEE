@@ -18,6 +18,9 @@
   const $btnRunABC       = document.getElementById('btnRunABC');
   const $btnRecalcROP    = document.getElementById('btnRecalcROP');
   const $btnAddProduct   = document.getElementById('btnAddProduct');
+  const $btnImportExcel  = document.getElementById('btnImportExcel');
+  const $btnExportExcel  = document.getElementById('btnExportExcel');
+  const $btnDownloadTemplate = document.getElementById('btnDownloadTemplate');
 
   // Stats
   const $statTotalProducts = document.getElementById('statTotalProducts');
@@ -442,6 +445,95 @@
       $btnRecalcROP.disabled = false;
     }
   });
+
+  // Toast Notification Helper
+  function showToast(message, type = 'info') {
+    let toast = document.getElementById('invToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'invToast';
+      document.body.appendChild(toast);
+    }
+    const bgClass = type === 'success' ? 'bg-ok-600 text-white' :
+                    type === 'error'   ? 'bg-red-600 text-white' :
+                    'bg-slate-800 text-white';
+
+    toast.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform translate-y-0 opacity-100 ${bgClass}`;
+    toast.innerHTML = `<span>${message}</span>`;
+
+    setTimeout(() => {
+      toast.className = 'fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform translate-y-2 opacity-0 pointer-events-none ' + bgClass;
+    }, 4000);
+  }
+
+  // Excel Export
+  if ($btnExportExcel) {
+    $btnExportExcel.addEventListener('click', async () => {
+      $btnExportExcel.disabled = true;
+      const originalHtml = $btnExportExcel.innerHTML;
+      $btnExportExcel.innerHTML = `<div class="spinner mr-1"></div><span>Exporting…</span>`;
+      try {
+        const res = await window.api.exportInventory();
+        if (res.success) {
+          showToast(`Exported ${res.count} products to Excel!`, 'success');
+        } else if (!res.canceled) {
+          showToast(res.message || 'Export failed', 'error');
+        }
+      } catch (err) {
+        showToast('Export error: ' + err.message, 'error');
+      } finally {
+        $btnExportExcel.disabled = false;
+        $btnExportExcel.innerHTML = originalHtml;
+      }
+    });
+  }
+
+  // Excel Import
+  if ($btnImportExcel) {
+    $btnImportExcel.addEventListener('click', async () => {
+      $btnImportExcel.disabled = true;
+      const originalHtml = $btnImportExcel.innerHTML;
+      $btnImportExcel.innerHTML = `<div class="spinner mr-1"></div><span>Importing…</span>`;
+      try {
+        const res = await window.api.importInventory();
+        if (res.success) {
+          let msg = `Import finished! Inserted: ${res.inserted}, Updated: ${res.updated}`;
+          if (res.errors && res.errors.length > 0) {
+            msg += ` (${res.errors.length} skipped)`;
+            console.warn('[Inventory Import Errors]:', res.errors);
+          }
+          showToast(msg, 'success');
+          await loadProducts();
+        } else if (!res.canceled) {
+          showToast(res.message || 'Import failed', 'error');
+        }
+      } catch (err) {
+        showToast('Import error: ' + err.message, 'error');
+      } finally {
+        $btnImportExcel.disabled = false;
+        $btnImportExcel.innerHTML = originalHtml;
+      }
+    });
+  }
+
+  // Sample Template Download
+  if ($btnDownloadTemplate) {
+    $btnDownloadTemplate.addEventListener('click', async () => {
+      $btnDownloadTemplate.disabled = true;
+      try {
+        const res = await window.api.downloadProductTemplate();
+        if (res.success) {
+          showToast('Sample Excel template saved successfully!', 'success');
+        } else if (!res.canceled) {
+          showToast(res.message || 'Failed to save template', 'error');
+        }
+      } catch (err) {
+        showToast('Download error: ' + err.message, 'error');
+      } finally {
+        $btnDownloadTemplate.disabled = false;
+      }
+    });
+  }
 
   // Auto-refresh when Inventory view becomes active
   const observer = new MutationObserver(() => {

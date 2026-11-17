@@ -64,6 +64,10 @@
   const $modalTendered        = document.getElementById('modalTendered');
   const $modalChange          = document.getElementById('modalChange');
   const $modalCloseBtn        = document.getElementById('modalCloseBtn');
+  const $modalPrintBtn        = document.getElementById('modalPrintBtn');
+  const $chkPrintReceipt      = document.getElementById('chkPrintReceipt');
+
+  let lastReceiptData = null;
 
   // Currency Formatter
   const peso = (amount) => '₱' + Number(amount || 0).toFixed(2);
@@ -510,6 +514,32 @@
       if (result.success) {
         const change = tendered - netTotal;
 
+        // Build receipt data snapshot before resetting cart
+        lastReceiptData = {
+          txId: `TX #${String(result.transactionId).padStart(4, '0')}`,
+          date: new Date().toLocaleString('en-PH', {
+            year: 'numeric', month: 'short', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+          }),
+          cashier: session.username || 'Cashier',
+          customerInfo: appliedDiscount ? `${appliedDiscount.customerName} (${appliedDiscount.idNumber})` : null,
+          discountType: appliedDiscount ? appliedDiscount.type : 'NONE',
+          discountAmount: discountAmount,
+          subtotalAmount: cartSubtotal,
+          totalAmount: netTotal,
+          tenderedAmount: tendered,
+          changeAmount: change,
+          items: cart.map(i => ({
+            brand_name: i.brand_name,
+            generic_name: i.generic_name,
+            quantity: i.quantity,
+            unit_price: i.selling_price,
+            subtotal: i.subtotal,
+            free_quantity: i.free_quantity || 0,
+            discount_applied: i.discount_applied || 0
+          }))
+        };
+
         // Populate success modal
         $modalTxId.textContent     = `TX #${String(result.transactionId).padStart(4, '0')}`;
         $modalTotal.textContent    = peso(netTotal);
@@ -534,6 +564,13 @@
 
         $checkoutModal.classList.remove('hidden');
 
+        // Optional receipt printing (if checkbox is checked)
+        if ($chkPrintReceipt && $chkPrintReceipt.checked) {
+          window.api.printReceipt(lastReceiptData).catch(err => {
+            console.error('[POS] Print error:', err);
+          });
+        }
+
         // Reset cart and applied discount
         cart = [];
         appliedDiscount = null;
@@ -550,6 +587,35 @@
       $chargeBtn.disabled = false;
       renderCart();
     }
+  }
+
+  // Modal Print Receipt
+  if ($modalPrintBtn) {
+    $modalPrintBtn.addEventListener('click', async () => {
+      if (!lastReceiptData) {
+        showToast('No transaction receipt available', 'error');
+        return;
+      }
+      $modalPrintBtn.disabled = true;
+      const originalHtml = $modalPrintBtn.innerHTML;
+      $modalPrintBtn.innerHTML = `
+        <div class="spinner mr-1"></div>
+        <span>Opening Print…</span>
+      `;
+      try {
+        const res = await window.api.printReceipt(lastReceiptData);
+        if (res && res.success === false && res.message) {
+          showToast('Print cancelled or failed: ' + res.message, 'error');
+        } else {
+          showToast('Receipt printed successfully!', 'success');
+        }
+      } catch (err) {
+        showToast('Print error: ' + err.message, 'error');
+      } finally {
+        $modalPrintBtn.disabled = false;
+        $modalPrintBtn.innerHTML = originalHtml;
+      }
+    });
   }
 
   // Modal Close

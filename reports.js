@@ -8,6 +8,7 @@
   const $dateFrom       = document.getElementById('rptDateFrom');
   const $dateTo         = document.getElementById('rptDateTo');
   const $btnGenerate    = document.getElementById('btnGenerateReport');
+  const $btnExportSales = document.getElementById('btnExportSalesReport');
   const $rptRevenue     = document.getElementById('rptRevenue');
   const $rptCOGS        = document.getElementById('rptCOGS');
   const $rptProfit      = document.getElementById('rptProfit');
@@ -260,6 +261,52 @@
           <span class="text-right text-xs font-bold ${profitClass}">${peso(profit)}</span>
         </div>`;
     }).join('');
+  }
+
+  // Toast Notification Helper
+  function showReportToast(message, type = 'success') {
+    let toast = document.getElementById('rptToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'rptToast';
+      document.body.appendChild(toast);
+    }
+    const bgClass = type === 'success' ? 'bg-ok-600 text-white' : 'bg-red-600 text-white';
+    toast.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform translate-y-0 opacity-100 ${bgClass}`;
+    toast.innerHTML = `<span>${message}</span>`;
+    setTimeout(() => {
+      toast.className = 'fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform translate-y-2 opacity-0 pointer-events-none ' + bgClass;
+    }, 4000);
+  }
+
+  // Export Sales Report to Excel
+  if ($btnExportSales) {
+    $btnExportSales.addEventListener('click', async () => {
+      const from = $dateFrom.value;
+      const to   = $dateTo.value + ' 23:59:59';
+      if (!from || !$dateTo.value) {
+        showReportToast('Please select a valid date range first.', 'error');
+        return;
+      }
+
+      $btnExportSales.disabled = true;
+      const origHtml = $btnExportSales.innerHTML;
+      $btnExportSales.innerHTML = `<div class="spinner mr-1"></div><span>Exporting…</span>`;
+
+      try {
+        const res = await window.api.exportSalesReport(from, to);
+        if (res.success) {
+          showReportToast(`Sales report exported to Excel! (${res.count || 0} transactions)`);
+        } else if (!res.canceled) {
+          showReportToast(res.message || 'Export failed', 'error');
+        }
+      } catch (err) {
+        showReportToast('Export error: ' + err.message, 'error');
+      } finally {
+        $btnExportSales.disabled = false;
+        $btnExportSales.innerHTML = origHtml;
+      }
+    });
   }
 
   // Auto-load on view switch

@@ -6,6 +6,7 @@
 
   //Dom Ref
   const $btnNewAudit      = document.getElementById('btnNewAudit');
+  const $btnExportAudits  = document.getElementById('btnExportAudits');
   const $auditTableBody   = document.getElementById('auditTableBody');
   const $auditStatTotal   = document.getElementById('auditStatTotal');
   const $auditStatAvgDisc = document.getElementById('auditStatAvgDisc');
@@ -207,6 +208,45 @@
       $auditFormError.classList.remove('hidden');
     }
   });
+
+  // Toast Notification Helper
+  function showAuditToast(message, type = 'success') {
+    let toast = document.getElementById('audToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'audToast';
+      document.body.appendChild(toast);
+    }
+    const bgClass = type === 'success' ? 'bg-ok-600 text-white' : 'bg-red-600 text-white';
+    toast.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform translate-y-0 opacity-100 ${bgClass}`;
+    toast.innerHTML = `<span>${message}</span>`;
+    setTimeout(() => {
+      toast.className = 'fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all duration-200 transform translate-y-2 opacity-0 pointer-events-none ' + bgClass;
+    }, 4000);
+  }
+
+  // Export Audits to Excel
+  if ($btnExportAudits) {
+    $btnExportAudits.addEventListener('click', async () => {
+      $btnExportAudits.disabled = true;
+      const origHtml = $btnExportAudits.innerHTML;
+      $btnExportAudits.innerHTML = `<div class="spinner mr-1"></div><span>Exporting…</span>`;
+
+      try {
+        const res = await window.api.exportAudits();
+        if (res.success) {
+          showAuditToast(`Exported ${res.count} audits to Excel!`);
+        } else if (!res.canceled) {
+          showAuditToast(res.message || 'Export failed', 'error');
+        }
+      } catch (err) {
+        showAuditToast('Export error: ' + err.message, 'error');
+      } finally {
+        $btnExportAudits.disabled = false;
+        $btnExportAudits.innerHTML = origHtml;
+      }
+    });
+  }
 
   // Auto-refresh on view switch
   const observer = new MutationObserver(() => {
